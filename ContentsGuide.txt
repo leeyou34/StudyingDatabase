@@ -1,0 +1,7 @@
+This repository contains the materials of database.
+
+first folder would contain the concept of database studying
+
+second folder would contain the examples and problems SQL from Oracle. 
+
+Thank you for your reading.
