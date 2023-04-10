@@ -38,7 +38,7 @@
                         예제7-1
                         고객 테이블은 고객아이디, 고객이름, 나이, 등급, 직업, 적립금 속성으로 구성되고, 고객아이디 속성이 기본키다. 고객 이름과 등급 속성은 값을 반드시 입력해야 하고, 적립금 속성은 값을 입력하지 않으면 0이 기본으로 입력되도록 고객 테이블을 생성해보자.
                             
-                        Create Table 고객 (
+                        CREATE TABLE 고객 (
                             고객아이디 VARCHAR(20) NOT NULL
                             , 고객이름 VARCHAR(20) NOT NULL
                             , 나이 INT
@@ -52,7 +52,7 @@
                         예제7-2
                         제품 테이블은 제품번호, 제품명, 재고량, 단가, 제조업체 속성으로 구성되고, 제품번호 속성이 기본키다. 재고량이 항상 0개 이상 10,000개 이하를 유지하도록 제품 테이블을 생성해보자.
                         
-                        Create Table 제품 (
+                        CREATE TABLE 제품 (
                             제품번호 CHAR(3) NOT NULL
                             , 제품명 VARCHAR(20)
                             , 재고량 INT
@@ -64,3 +64,74 @@
                         
                         예제7-3
                         
+                        CREATE TABLE 주문 (
+                              주문번호 CHAR(3) NOT NULL
+                            , 주문고객 VARCHAR(20)
+                            , 주문제품 CHAR(3)
+                            , 수량 INT
+                            , 배송지 VARHCAR(30)
+                            , 주문일자 DATE
+                            , PRIMARY KEY(주문번호)
+                            , FOREIGN KEY(주문고객) REFERENCES 고객(고객아이디)
+                            , FOREIGN KEY(주문제품) REFERENCES 제품(제품번호)
+                         );
+                         
+                         
+                         예제7-4
+                         
+                         CREATE TABLE 배송업체 (
+                                  업체번호 CHAR(3) NOT NULL
+                                , 업체명 VARCHAR(20)
+                                , 주소 VARCHAR(100)
+                                , 전화번호 VARCHAR(20)
+                                , PRIMARY KEY(업체번호)
+                         );
+                         
+                    3. 테이블의 변경
+                          새로운 속성의 추가: 
+                            ALTER TABLE 테이블_이름
+                            ADD 속성_이름 데이터_타입 [NOT NULL] [DEFAULT 기본_값];
+                                    
+                                    
+                          예제7-5
+                            ALTER TABLE 고객 ADD 가입날짜 DATE;
+                          
+                          
+                          기본 속성의 삭제
+                          
+                            ALTER TABLE 테이블_이름 DROP COLUMN 속성_이름;
+                          
+                          
+                          
+                          예제7-6
+                            ALTER TABLE 고객 DROP COLUMN 가입날짜;
+                          
+                          
+                          새로운 제약조건 추가
+                            ALTER TABLE 테이블_이름 ADD CONSTRAINT 제약조건_이름 제약조건_내용;
+                          
+                          
+                          예제7-7
+                            ALTER TABLE 고객 ADD CONSTRAINT CHK_AGE CHECK(나이>=20);
+                          
+                          
+                          기존 제약조간의 삭제
+                            ALTER TABLE 고객 DROP CONSTRAINT CHK_AGE;
+                            
+                     4. 테이블의 삭제
+                        DROP TABLE 테이블_이름;
+                        
+                          예제7-9
+                            DTOP TABLE 배송업체;
+                            
+             
+            07-03: SQL을 이용한 데이터 조작
+                    1. SQL의 데이터 조작 기능
+                       데이터 검색: SELECT
+                       데이터 삽입: INSERT
+                       데이터 수정: UPDATE
+                       데이터 삭제: DELTE
+                       
+                    2. 데이터의 검색
+            
+                                
