@@ -122,7 +122,7 @@
                         DROP TABLE 테이블_이름;
                         
                           예제7-9
-                            DTOP TABLE 배송업체;
+                            DROP TABLE 배송업체;
                             
              
             07-03: SQL을 이용한 데이터 조작
@@ -133,5 +133,61 @@
                        데이터 삭제: DELTE
                        
                     2. 데이터의 검색
-            
+                       예시) INSERT INTO 고객 VALUES ('apple', '정소화', '20, 'gold', '학생', 1000);
+                       
+                        2-1. 기본검색
+                             SELECT ALL or DISTINCT 속성_리스트
+                             FROM 테이블_리스트;
+  
+                            예제:7-10. 
+                                SELECT 고객아이디, 고객이름, 등급
+                                FROM 고객;
+                             
+                            예제:7-11.
+                                SELECT 고객아이디, 고객이름, 나이, 등급, 직업, 적립금
+                                FROM 고객;
+                                
+                            예제:7-12
+                                SELECT * 
+                                FROM 고객;
+                                
+                            예제:7-13
+                                SELECT 제조업체
+                                FROM 제품;
+                            
+                            예제:7-14
+                                SELECT ALL 제조업체
+                                FROM 제품;
+                                
+                            예제:7-15.
+                                SELECT DISTINCT 제조업체
+                                FROM 제품;
+                                
+                            예제:7-16.
+                                SELECT 제품명, 단가 AS 가격
+                                FROM 제품;
+                                
+                            예제:7-17.
+                                SELECT 제품명, 단가+500 AS "조정 단가"
+                                FROM 제품;
+                                
+                    3. 조건 검색
+                       SELECT ALL or DISTINCT 속성_리스트
+                       FROM 테이블_리스트
+                       WHERE 조건;
+                       
+                            예제:7-18.
+                                SELECT 제품명, 재고량, 단가
+                                FROM 제품
+                                WHERE 제조업체 = '한빛제과';
+                                
+                            예제:7-19.
+                                SELECT 주문제품, 수량, 주문일자
+                                FROM 주문
+                                WHERE 제조업체 = 'apple' AND 수량 >=15;
+                                
+                            예제:7-20.
+                                SELECT 주문제품, 수량, 주문일자, 주문고객
+                                FROM 주문
+                                WHERE 주문고객='apple' OR 수량 >=15;
                                 
