@@ -195,7 +195,9 @@
                                 SELECT 제품명, 단가, 제조업체
                                 FROM 제품
                                 WHERE 단가 >= 2000 AND 단가<=3000;
-                                
+                         
+                     4. LIKE를 이용한 검색
+                         
                             예제:7-22.
                                 SELECT 고객이름, 나이, 등급, 적립금
                                 FROM 고객
@@ -206,6 +208,8 @@
                                 FROM 고객
                                 WHERE 고객아이디 LIKE '_____';
                                 
+                     5. NULL을 이용한 검색       
+                                
                             예제:7-24.
                                 SELECT 고객이름
                                 FROM 고객
@@ -215,11 +219,42 @@
                                 SELECT 고객이름
                                 FROM 고객
                                 WHERE 나이 IS NOT NULL;
-                                
+                            
+                     6. 정렬검색   
+                                                     
                             예제:7-26.
                                 SELECT 고객이름, 등급, 나이
                                 FROM 고객
                                 WHERE 나이 DESC;
                                 
+                            예제:7-27.
+                                SELECT 주문고객, 주문제품, 수량, 주문일자
+                                FROM 주문
+                                WHERE 수량 >=10
+                                ORDER BY 주문제품 ASC, 수량 DESC;
+                                                                
+                       7. 집계 함수를 이용한 검색     
+                          집계 함수에는 COUNT, MAX, MIN, SUM, AVG 함수가 있다.
+                          
+                            예제:7-28.
+                                SELECT AVG(단가)
+                                FROM 제품;
                                 
+                            예제:7-29.
+                                SELECT SUM(재고량) AS "재고량 합계"
+                                FROM 제품
+                                WHERE 제조업체 = '한빛제과';
                                 
+                            예제:7-30.
+                                SELECT COUNT(고객아이디) AS 고객수
+                                FROM 고객;
+                                
+                                SELECT COUNT(나이) AS 고객수
+                                FROM 고객;
+                                
+                                SELECT COUNT(*) AS 고객수
+                                FROM 고객;
+
+                            예제:7-31.
+                                SELECT COUNT(DISTINCT 제조업체) AS "제조업체 수"
+                                FROM 제품;
