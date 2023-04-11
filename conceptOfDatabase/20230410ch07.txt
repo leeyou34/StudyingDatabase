@@ -371,4 +371,33 @@
                             예제:7-49.
                                 UPDATE 제품 SET 제품명='통큰파이' WHERE 제품번호='p03';
                                 SELECT * FROM 제품;
+                                
+                                
+                            예제:7-50.
+                                UPDATE 제품 SET 단가=단가*1.1;
+                                SELECT * FROM 제품;
+                                
+                            
+                            예제:7-51.
+                                UPDATE 주문 SET 수량=5
+                                WHERE 주문고객 IN (SELECT 고객아이디 FROM 고객 WHERE 고객이름 ='정소화');
+                                SELECT * FROM 주문;
+                                
+                        
+                       5. 데이터의 삭제
+                          DELETE FROM 테이블_이름 WHERE 조건;
+                          
+                            예제:7-52.
+                                DELETE FROM 주문 WHERE 주문일자 = '2022-05-22';
+                                SELECT * FROM 주문;
+                                
+                            
+                            예제:7-53.
+                                DELETE FROM 주문 WHERE 주문고객 IN (SELECT 고객아이디 FROM 고객 WHERE 고객이름 ='정소화');
+                                SELECT * FROM 주문;
+                                
+                            
+                            예제:7-54.
+                                DELETE 주문;
+                                SELECT * FROM 주문;
                          
