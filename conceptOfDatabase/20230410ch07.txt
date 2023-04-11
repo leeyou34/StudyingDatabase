@@ -258,3 +258,16 @@
                             예제:7-31.
                                 SELECT COUNT(DISTINCT 제조업체) AS "제조업체 수"
                                 FROM 제품;
+
+                        8. 그룹별 검색
+                        
+                            예제:7-32.
+                                SELECT 주문제품, SUM(수량) AS 총주문수량
+                                FROM 주문
+                                GROUP BY 주문제품;
+                        
+                            예제:7-33.
+                                SELECT 제조업체, COUNT(*) AS 제품수, MAX(단가) AS 최고가
+                                FROM 제품
+                                GROUP BY 제조업체;
+                            
