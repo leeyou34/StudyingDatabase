@@ -401,3 +401,32 @@
                                 DELETE 주문;
                                 SELECT * FROM 주문;
                          
+
+            07-04: 뷰
+                    1. 뷰의 개념
+                       view는 다른 테이블을 기반으로 만들어진 가상 테이블 virtual table이다.
+                       뷰를 만드는 데 기반이 되는 물리적인 테이블을 기본 테이블(base table)이라고 하며. CREATE TABLE문으로 정의한 테이블이 기본 테이블로 사용된다.
+                    
+                    2. 뷰의 생성
+                              예제:7-55.
+                                CREATE VIEW 우수고객(고객아이디, 고객이름, 나이, 등급)
+                                AS SELECT 고객아이디, 고객이름, 나이, 등급
+                                    FROM 고객
+                                    WHERE 등급 = 'vip'
+                                WITH CHECK OPTION;
+                                
+                                SELECT * FROM 우수고객;
+                                
+                             예제:7-56.
+                                CREATE VIEW 업체별제품수(제조업체, 제품수)
+                                AS SELECT 제조업체, COUNT(*)
+                                    FROM 제품
+                                    GROUP BY 제조업체
+                                WITH CHECK OPTION;
+                                
+                                SELECT * FROM 업체별제품수;
+                                
+                     3. 뷰의 활용       
+                            예제:7-57.
+                                SELECT * FROM 우수고객 WHERE 나이>=20;
+                    
