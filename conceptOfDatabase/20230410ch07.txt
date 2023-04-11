@@ -191,3 +191,35 @@
                                 FROM 주문
                                 WHERE 주문고객='apple' OR 수량 >=15;
                                 
+                            예제:7-21.
+                                SELECT 제품명, 단가, 제조업체
+                                FROM 제품
+                                WHERE 단가 >= 2000 AND 단가<=3000;
+                                
+                            예제:7-22.
+                                SELECT 고객이름, 나이, 등급, 적립금
+                                FROM 고객
+                                WHERE 고객이름 LIKE '김%';
+                                
+                            예제:7-23.
+                                SELECT 고객아이디, 고객이름, 등급
+                                FROM 고객
+                                WHERE 고객아이디 LIKE '_____';
+                                
+                            예제:7-24.
+                                SELECT 고객이름
+                                FROM 고객
+                                WHERE 나이 is NULL;
+                                
+                            예제:7-25.
+                                SELECT 고객이름
+                                FROM 고객
+                                WHERE 나이 IS NOT NULL;
+                                
+                            예제:7-26.
+                                SELECT 고객이름, 등급, 나이
+                                FROM 고객
+                                WHERE 나이 DESC;
+                                
+                                
+                                
