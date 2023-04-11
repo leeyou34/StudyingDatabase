@@ -196,7 +196,7 @@
                                 FROM 제품
                                 WHERE 단가 >= 2000 AND 단가<=3000;
                          
-                     4. LIKE를 이용한 검색
+                        3-1. LIKE를 이용한 검색
                          
                             예제:7-22.
                                 SELECT 고객이름, 나이, 등급, 적립금
@@ -208,7 +208,7 @@
                                 FROM 고객
                                 WHERE 고객아이디 LIKE '_____';
                                 
-                     5. NULL을 이용한 검색       
+                        3-2. NULL을 이용한 검색       
                                 
                             예제:7-24.
                                 SELECT 고객이름
@@ -220,7 +220,7 @@
                                 FROM 고객
                                 WHERE 나이 IS NOT NULL;
                             
-                     6. 정렬검색   
+                        3-3. 정렬검색   
                                                      
                             예제:7-26.
                                 SELECT 고객이름, 등급, 나이
@@ -233,7 +233,7 @@
                                 WHERE 수량 >=10
                                 ORDER BY 주문제품 ASC, 수량 DESC;
                                                                 
-                       7. 집계 함수를 이용한 검색     
+                        3-4. 집계 함수를 이용한 검색     
                           집계 함수에는 COUNT, MAX, MIN, SUM, AVG 함수가 있다.
                           
                             예제:7-28.
@@ -259,7 +259,7 @@
                                 SELECT COUNT(DISTINCT 제조업체) AS "제조업체 수"
                                 FROM 제품;
 
-                        8. 그룹별 검색
+                        3-5. 그룹별 검색
                         
                             예제:7-32.
                                 SELECT 주문제품, SUM(수량) AS 총주문수량
@@ -271,3 +271,104 @@
                                 FROM 제품
                                 GROUP BY 제조업체;
                             
+                            예제:7-34.
+                                SELECT 제조업체, COUNT(*) AS 제품수, MAX(단가) AS 최고가
+                                FROM 제품
+                                GROUP BY 제조업체 HAVING COUNT(*)>=3;
+                            
+                            
+                            예제:7-35.
+                                SELECT 등급, COUNT(*) AS 고객수, AVG(적립금) AS 평균적립금
+                                FROM 고객
+                                GROUP BY 등급 HAVING AVG(적립금) >=1000;
+                                
+                            예제:7-36.
+                                SELECT 주문제품, 주문고객, SUM(수량) AS 총주문수량
+                                FROM 주문
+                                GROUP BY 주문제품, 주문고객;
+                            
+                         3-6. 여러 테이블에 대한 조인 검색    
+                            
+                            예제:7-37.
+                                SELECT 제품.제품명
+                                FROM 제품, 주문
+                                WHERE 주문.주문고객='banana' AND 제품.제품번호 = 주문.주문제품;
+                            
+                            예제:7-38.
+                                SELECT 주문.주문제품, 주문.주문일자
+                                FROM 고객, 주문
+                                WHERE 고객.나이 >=30 AND 고객.고객아이디 = 주문.주문고객;
+                                
+                            예제:7-39.
+                                SELECT 제품.제품명
+                                FROM 고객, 제품, 주문
+                                WHERE 고객.고객이름 ='고명석' AND 고객.고객아이디 = 주문.주문고객
+                                                             AND 제품.제품번호 = 주문.주문제품;
+                            
+                         3-7. 부속 질의문을 이용한 검색   
+                            
+                            예제:7-40.
+                                SELECT 제품명, 단가
+                                FROM 제품
+                                WHERE 제조업체 = (SELECT 제조업체 FROM 제품 WHERE 제품명 ='달콤비스킷');
+                                
+                            예제:7-41.
+                                SELECT 고객이름, 적립금
+                                FROM 고객
+                                WHERE 적립금 =(SELECT MAX(적립금) FROM 고객);
+                                
+                            예제:7-42.
+                                SELECT 제품명, 제조업체
+                                FROM 제품
+                                WHERE 제품번호 IN (SELECT 주문제품 FROM 주문 WHERE 주문고객 = 'banana');
+                                
+                            예제:7-43.
+                                SELECT 제품명, 제조업체
+                                FROM 제품
+                                WHERE 제품번호 NOT IN (SELECT 주문제품 FROM 주문 WHERE 주문고객 = 'banana');
+                            
+                            예제:7-44.
+                                SELECT 제품명, 단가, 제조업체
+                                FROM 제품
+                                WHERE 단가 > ALL (SELECT 주문제품 FROM 제품 WHERE 제조업체 = '대한식품');
+                                
+                            예제:7-45.
+                                SELECT 고객이름
+                                FROM 고객
+                                WHERE EXISTS (SELECT * FROM 주문 WHERE 주문일자 = '2022-03-15' AND 주문.주문고객=고객.고객아이디);
+                                
+                            예제:7-46.
+                                SELECT 고객이름
+                                FROM 고객
+                                WHERE NOT EXISTS (SELECT * FROM 주문 WHERE 주문일자 = '2022-03-15' AND 주문.주문고객=고객.고객아이디);
+                                
+                                
+                    3. 데이터의 삽입
+                        데이터 직접 삽입
+                          INSERT
+                          INTO 테이블_이름[(속성_리스트)]
+                          VALUES (속성값_리스트);                            
+                            
+                            예제:7-47.
+                                INSERT INTO 고객(고객아이디, 고객이름, 나이, 등급, 직업, 적립금)
+                                VALUES ('strawberry', '최유경', 30, 'vip', '공무원', 100);
+                                
+                                SELECT * FROM 고객;
+                                
+                            
+                            예제:7-48.
+                                INSERT INTO 고객(고객아이디, 고객이름, 나이, 등급, 적립금) 
+                                VALUES ('tomato', '정은심', 36, 'gold', 4000);
+                                
+                         3-1. 부속 질의문을 이용한 데이터 삽입
+                              INSERT INTO 테이블_이름[(속성_리스트)] SELECT 문;
+                              
+                     4. 데이터의 수정
+                        UPDATE 테이블_이름
+                        SET 속성_이름1 = 값1, 속성_이름2 = 값2
+                        [WHERE 조건];
+                        
+                            예제:7-49.
+                                UPDATE 제품 SET 제품명='통큰파이' WHERE 제품번호='p03';
+                                SELECT * FROM 제품;
+                         
