@@ -37,4 +37,42 @@
                                 예시) GRANT 권한 ON 객체 TO 사용자 [WITH GRANT OPTION]
                                 
                                 
+                   예제 11-1) GRANT SELECT ON 고객 TO HONG;
+                   
+                   예제 11-2) GRANT INSERT, DELETE ON 고객 TO PUBLIC;
+                   
+                   예제 11-3) GRANT UPDATE(등급, 적립금) ON 고객 TO PARK;
+                   
+                   예제 11-4) GRANT SELECT ON 고객 TO Lee WITH GRANT OPTION;
+                   
+                   예제 11-5) GRANT CREATE TABLE TO Song;
+                   
+                   예제 11-6) GRANT CREATE VIEW TO Shin;
+                
+                
+                3. 권한의 취소: GRANT 명령어를 통해 다른 사용자에게 권한을 부여한 사용자가 자신이 부여한 권한을 취소 할 수도 있다.
+                                다른 사용자에게 부여된 객체의 사용 권한을 취소하기 위해 필요한 SQL 명령어는 REVOKE다. REVOKE문의 기본 형식은 다음과 같다.
+                                
+                                REVOKE 권한 ON 객체 FROM 사용자 CASCADE | RESTRICT;
+                                
+                                
+                    예제 11-7) REVOKE SELECT ON 고객 FROM Hong CASCADE;
+                    
+                    예제 11-8) REVOKE SELECT ON 고객 FROM Hong RESTRICT;
+                    
+                    예제 11-9) REVOKE CREATE TABLE FROM Hong;
+                    
+                    
+                4. 역할의 부여와 취소: 데이터베이스 객체의 소유자는 조직의 업무를 수행하기 위해 자신이 소유한 객체에 대한 권한들을 여러 사용자에게 부여하는 경우가 많다.
+                
+                    예제 11-10) CREATE ROLE role_1;
+                    
+                    예제 11-11) GRANT SELECT, INSERT, DELETE ON 고객 TO role_1;
+                    
+                    예제 11-12) GRANT role_1 TO Hong;
+                
+                    예제 11-13) Revoke role_1 FROM Hong;
+                   
+                    예제 11-14) DROP ROLE role_1;
+                    
                     
