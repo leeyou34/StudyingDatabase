@@ -1,0 +1,42 @@
+날짜: 20230427
+작성자: leeyou34
+공부 범주:
+    가. Appendix: Oracle
+    
+요약:
+
+
+가. Appendix: Oracle
+
+  ch14-02. 오라클을 이용한 데이터베이스 구축과 활용
+  
+    1. SQL PLUS를 이용해 오라클에 접속하고 해제
+    
+      2) 사용자 생성 및 권한 설정 SQL문.
+      
+            사용자명 입력: sys as sysdba
+            비밀번호 입력:
+
+            다음에 접속됨:
+            Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+            Version 19.3.0.0.0
+
+            SQL> CREATE USER C##DBTEST IDENTIFIED BY dbgood
+              2  DEFAULT TABLESPACE users
+              3  TEMPORARY TABLESPACE temp
+              4  QUOTA UNLIMITED ON users;
+
+            사용자가 생성되었습니다.
+
+            SQL> GRANT CONNECT, RESOURCE TO C##DBTEST;
+
+            권한이 부여되었습니다.
+
+            SQL> GRANT DBA TO C##DBTEST;
+
+            권한이 부여되었습니다.
+
+       3) 데이터베이스 접속 끊기.
+            SQL> exit
+            
+            
