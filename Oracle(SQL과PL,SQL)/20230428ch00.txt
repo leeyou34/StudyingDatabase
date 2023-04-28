@@ -1,3 +1,6 @@
 Date: 2023-04-28
 Title: 공부를 시작하기 전에 미리 알아두기
 
+
+1. SQLPLUS 인스톨하기
+2. SQL DEVELOPER 인스톨하기
