@@ -4,3 +4,21 @@ Title: 공부를 시작하기 전에 미리 알아두기
 
 1. SQLPLUS 인스톨하기
 2. SQL DEVELOPER 인스톨하기
+
+
+
+### 쿼리문 작성
+  sqlplus sys as sysdba
+  
+  ##사용자 생성
+  create user c##scott identified by tiger;
+  
+  ##사용자 변경
+  alter user c##scott default tablespace system temporary tablespace temp;
+  
+  ## 권한 부여
+  grant connect, resource to c##scott;
+  
+  ## DB연결
+  connect c##scott/tiger;
+  
