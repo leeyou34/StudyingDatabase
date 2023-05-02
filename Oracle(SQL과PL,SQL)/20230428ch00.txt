@@ -38,4 +38,5 @@ Title: 공부를 시작하기 전에 미리 알아두기
   ##해당 위치에 있는 test_data_eng.sql 파일을 실행시켜 테이블 생성
   @"C:\Users\PC\Downloads\test_data_eng.sql"
   
-  
+  ##프롬프트창 이름 변경
+  set sqlprompt "_USER>"
