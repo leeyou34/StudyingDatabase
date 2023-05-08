@@ -224,9 +224,9 @@ Title: SQL 단일행 함수를 배웁시다.
     문법: ROUND(숫자, 출력을 원하는 자릿수)
     
     예제1:
-    SELECT ROUND(987,654,2) "ROUND1"
-         , ROUND(987,654,0) "ROUND2"
-         , ROUND(987,654,-1) "ROUND3"
+    SELECT ROUND(987.654,2) "ROUND1"
+         , ROUND(987.654,0) "ROUND2"
+         , ROUND(987.654,-1) "ROUND3"
          From dual;
     
     
@@ -235,7 +235,40 @@ Title: SQL 단일행 함수를 배웁시다.
     문법: TRUNC(숫자, 원하는 자릿수)
     
     예제1:
-    SELECT TRUNC(987,654,2) "TRUNC1"
-         , TRUNC(987,654,0) "TRUNC2"
-         , TRUNC(987,654,01) "TRUNC3"
+    SELECT TRUNC(987.654,2) "TRUNC1"
+         , TRUNC(987.654,0) "TRUNC2"
+         , TRUNC(987.654,-1) "TRUNC3"
         FROM dual; 
+
+
+    2.3 MOD(), CEIL(), FLOOR() 함수
+    
+    MOD 함수는 나머지 값을 구하는 함수이다
+    CEIL 함수는 주어진 숫자가 가장 가까운 큰 정수를 구하는 함수
+    FLOOR 함수는 주어진 함수와 가장 가까운 작은 정수를 구하는 함수
+    
+    예시1:
+    SELECT MOD(121,10) "MOD"
+          , CEIL(123,45) "CEIL"
+          , FLOOR(123,45) "FLOOR"
+          FROM dual;
+          
+    
+    예시2:
+    SELECT rownum "ROWNO", CEIL(rownum/3) "TEAMNO", ename from emp;
+    
+    
+    
+    2.4 POWER() 함수
+    이 함수는 숫자 1과 숫자 2의 승수를 구해주는 함수
+    
+    SELECT POWER(2,3) FROM DAUL;
+    
+    
+    
+    
+    
+    3. 날짜 관련 함수들
+    
+    3.1 SYSDATE 함수
+    
