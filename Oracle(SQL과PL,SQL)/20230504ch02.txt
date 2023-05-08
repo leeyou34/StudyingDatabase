@@ -162,7 +162,80 @@ Title: SQL 단일행 함수를 배웁시다.
     
     
     퀴즈1
-    아래 화면과 같이 emp테이블에서 deptno가 10번인 사원들의 이름을 총 9자리로 출력하되 오른쪽 빈자리에는 래당 자릿수에 해당되는 숫자가 툴력되게 해라
+    아래 화면과 같이 emp테이블에서 deptno가 10번인 사원들의 이름을 총 9자리로 출력하되 오른쪽 빈자리에는 래당 자릿수에 해당되는 숫자가 출력되게 해라
+    
+    select ename, RPAD(ename, 9, SUBSTR('234567890', LENGTHB(ename), 10-LENGTHB(ename))) from emp where deptno=10;
+    
+    
+    1.11 LTRIM() 함수
+    
+    LPAD, RPAD 함수가 채우는 함수였다면 LTRIM, RTRIM 함수는 제거하는 함수이다.
+    
+    LTRIM('문자열' 또는 컬럼명, '제거할 문자')
+    
+    예제1:
+    emp 테이블에서 ename 이 'C'로 시작하는 사람의 이름에서 'C'를 제거하고 출력하는 화면입니다.
+    
+    -> 변경 전
+    SELECT ename, from emp where deptno =10; 
+    
+    -> 변경 후
+    select LTRIM(ename, 'C') from emp where deptno = 10;
     
     
     
+    1.12 RTRIM() 함수
+    
+    emp 테이블에서 'R'로 끝나는 사람의 이름에서 'R'을 제거하고 출력하는 화면
+    select RTRIM(ename, 'R') from emp where deptno = 10;
+    
+    
+    1.13 Replace() 함수
+    
+    문법: Replace('문자열' 또는 컬럼명, '문자1', '문자2')
+    
+    예제1:
+    select ename, replace(ename, SUBSTR(ename, 1, 2), '**') "Replace" from emp where deptno = 10;
+    
+   
+    퀴즈1:
+    select ename, replace(ename, SUBSTR(ename,2,2), '--') "Replace" from emp where deptno = 20;
+    
+    
+    퀴즈2:
+    select name, jumin, replace(jumin, SUBSTR(jumin, 7, 7),'-/-/-/-') "Replace" from student where deptno1=101;
+    
+    
+    퀴즈3:
+    select name, tel, replace(tel, SUBSTR(tel,5, 3), '****') "Replace" from student where deptno1=102;
+    
+    
+    퀴즈4:
+    select name, tel, replace(tel, SUBSTR(tel, 9, 4), '****') "Replace" from student where deptno1=101;
+    
+    
+    
+    2. 숫자 관련 함수들
+    숫자 함수란 함수에 입력되는 값이 숫자인 함수를 말하며 아래와 같은 종류가 있다.
+    
+    
+    2.1 ROUND() 함수
+    
+    문법: ROUND(숫자, 출력을 원하는 자릿수)
+    
+    예제1:
+    SELECT ROUND(987,654,2) "ROUND1"
+         , ROUND(987,654,0) "ROUND2"
+         , ROUND(987,654,-1) "ROUND3"
+         From dual;
+    
+    
+    2.2 TRUNC() 함수
+    
+    문법: TRUNC(숫자, 원하는 자릿수)
+    
+    예제1:
+    SELECT TRUNC(987,654,2) "TRUNC1"
+         , TRUNC(987,654,0) "TRUNC2"
+         , TRUNC(987,654,01) "TRUNC3"
+        FROM dual; 
