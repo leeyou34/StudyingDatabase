@@ -419,3 +419,85 @@ Title: SQL 단일행 함수를 배웁시다.
    professor 테이블을 조회하여 201번 학과에 근무하는 교수들의 이름과 급여, 보너스, 연봉을 아래와 같이 출력하세요. 단 연봉은 (pay*12)+bonus로 계산합니다.
    
    select name, pay, bonus, TO_CHAR((PAY*12)+bonus, '999,999') "TOTAL" from professor where deptno = 201;
+
+
+
+  형 변환 함수 퀴즈3
+  emp 테이블을 조회하여 comm 값을 가지고 있는 사람들의 empno, ename, hiredate, 총 연봉, 15% 인상 후 연봉을 아래 화면처럼 출력하라. 단 총 연봉은 (sal * 12) + comm으로 계산하고 아래 화면에서는 SAL로 출력되었으며 15% 인상한 값은 총 연봉의 15% 인상 값입니다. (HIREDATE 컬럼의 날짜 형식과 SAL 컬럼, 15% UP 컬럼의 $ 표기와 기호가 나오게 하라)
+  
+  select empno, ename, hiredate, TO_CHAR((sal * 12) + comm, '999,999') "SAL", TO_CHAR(((sal*12)+comm)*1.15, '999,999') "15% UP SAL" from emp where comm is not null;
+  
+  
+  
+  4.4 TO_NUMBER() 함수
+  이 함수는 숫자가 아닌 숫자처럼 생긴 문자를 숫자로 바꾸어 주는 함수이다.
+  
+  문법: TO_NUMBER('숫자처럼 생긴 문자')
+  
+  SELECT TO_NUMBER('5') from dual;
+  ->
+  SELECT ASCII('A') from dual;
+  -> 문자를 숫자로 출력을 원한다면 ASCII 코드로 사용해서 값을 출력한다.
+  
+  
+  
+  
+  4.5 TO_DATE() 함수
+  이 함수는 날짜가 아닌 날짜처럼 생긴 문자를 날짜로 바꿔 주는 함수이다.
+  
+  select TO_DATE('2014/05/31') from dual;
+  
+  
+  
+  
+  5. 일반 함수
+  
+  5.1 NVL() 함수: NULL 값을 만나면 다른 값으로 치환해서 출력하는 함수
+  
+  문법: NVL(컬럼, 치환할 값)
+  
+  NVL(sal, 0) -> sal 컬럼의 값이  null 인 경우 null eotls 0 으로 치환하라
+  NVL(sal, 100) -> sal 컬럼의 값이 null일 경우 null 대신 100으로 치환하라.
+  
+  예시1:
+  SELECT ename, comm, NVL(comm, 0), NVL(comm,100) from emp where deptno =30;
+  
+  
+  more... 치환 값이 문자일 경우
+  NVL(position, '사원') -> position 값이 null일 경우 '사원'으로 치환하라.
+  
+  치환 값이 날짜일 경우
+  NVL(hiredate,'2014/05/01') -> hiredate 값이 없을 경우 '2014/05/01' 날짜로 치환하라.
+  
+  
+  NVL 함수 퀴즈
+  Porfessor 테이블에서 201번 학과 교수들의 이름과 급여, bonus, 총 연봉을 아래와 같이 출력하라.
+  단, 총 연봉은 (pay * 12 + bonus)로 계산하고 bonus 없는 교수는 0으로 계산하세요.
+  
+  ->
+  select name, pay, NVL(bonus, 0) "bonus", TO_CHAR((pay * 12)+NVL(bonus,0), '999,999') "TOTAL" from professor;
+  
+  
+  
+  5.2 NVL2() 함수
+  
+  문법: NVL2(COL1, COL2, COL3)
+  의미: col1의 값이 NULL이 아니면 col2를, NULL이면 col3를 출력합니다.
+  
+  예시1:
+  emp 테이브레서 deptno가 30번인 사람들의 empno, sal, comm 값을 출력하되 만약 comm 값이 null이 아니면
+  sal + comm 값을 출력하고 comm 값이 null 이면 sal * 0의 값을 출력하세요.
+  
+  select empno, sal, NVL2(comm, sal+comm, sal * 0) from emp where deptno='30';
+  
+  
+  
+  NVL2 함수 퀴즈
+  
+  아래 화면과 같이 emp 테이블에서 deptno가 30번인 사원들을 조회하여 comm 값이 있을 겨우 'Exist'을 출려갛고 
+  comm 값이 null 일 경우 'NULL'을 출력하세요.
+  
+  select empno, ename, comm, NVL2(comm, 'Exist', 'NULL') "NVL2" from emp where deptno =30;
+  
+  
+  5.3 Decode() 함
