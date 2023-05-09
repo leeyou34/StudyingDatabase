@@ -580,3 +580,73 @@ DECODE(A,B, DECODE(C,D, '1', null))
  
  
  
+5.4 CASE 문
+
+문법: CASE 조건 WHEN 결과1 THEN 출력1 [WHEN 결과 2 THEN 출력2] ELSE 출력3 END "컬럼명"
+
+이 문법에서 주의사항은 DECODE 함수의 경우에는 함수 내부에 ,(comma)로 저근드링 구분되었으나 CASE 표현식 내부는 콤마가 사용되지 않는다.
+
+예시1
+student 테이블을 참조하여 deptno1이 201번인 학생의 이름과 전화번호, 지역명을 출력하세요.
+단, 지역번호가 02면 "SEOUL", 031이면 "GYEONGGI", 051이면 "BUSAN", 052이면 "ULSAN", 055이면
+"GYEONGNAM", 나머지는 "ETC"로 표시하세요.
+
+select name, tel
+      , CASE(SUBSTR(tel,1, INSTR(tel,')')-1)) WHEN '02' THEN 'SEOUL'
+                                              WHEN '031' THEN 'GYEONGGI'
+                                              WHEN '051' THEN 'BUSAN'
+                                              WHEN '052' THEN 'ULSAN'
+                                              WHEN '055' THEN 'GYEONGNAM'
+                                                         ELSE 'ETC'
+      END "LOC"
+      From student where deptno1=201;
+      
+      
+비교조건이 '=' 아닌 경우
+student 테이블의 jumin 컬럼을 참조하여 학생들의 이름과 태어난 달, 그리고 분기를 출력하라
+태어난 달이 01~03월은 1/4, 04~06월은 2/4, 07~09월은 3/4, 10~12월은 4/4로 출력하세요.
+
+
+
+select name, SUBSTR(jumin, 3, 2) "MONTH"
+       , CASE WHEN SUBSTR(jumin, 3,2) BETWEEN '01' AND '03' THEN '1/4'
+            WHEN SUBSTR(jumin, 3,2) BETWEEN '04' AND '06' THEN '2/4'
+            WHEN SUBSTR(jumin, 3,2) BETWEEN '07' AND '09' THEN '3/4'
+            WHEN SUBSTR(jumin, 3,2) BETWEEN '10' AND '12' THEN '4/4'
+       END "QUARTER"
+ FROM student;
+ 
+ 
+ 
+ CASE문 퀴즈
+ emp테이블을 조회하여 empno, ename, sal, LEVEL(급여등급)을 아래와 같이 출력하세요. 단, 급여등급은 sal을 기준으로 1-1000이면 Level1,  1001-2000이면 Level2, 2001-3000이면 level3, 3001-4000이면 level4, 4001보다 많으면 LEVEL5로 출력하세요.
+ 
+ /** 잘못된 답
+ select empno, ename, sal, SUBSTR(sal, 1, 4) "LEVEL"
+      , CASE WHEN SUBSTR(sal, 1,4) BETWEEN '0001' AND '1000' THEN 'LEVEL1'
+             WHEN SUBSTR(sal, 1,4) BETWEEN '1001' AND '2000' THEN 'LEVEL2'
+             WHEN SUBSTR(sal, 1,4) BETWEEN '2001' AND '3000' THEN 'LEVEL3'
+             WHEN SUBSTR(sal, 1,4) BETWEEN '3001' AND '4000' THEN 'LEVEL4'
+                                                             ELSE 'LEVEL5'
+      END "LEVEL"
+      FROM emp;
+ **/
+      
+     /** 잘못된 답
+     select empno, ename, sal
+      , CASE WHEN SUBSTR(sal, 1,4) BETWEEN '001' AND '1000' THEN 'LEVEL1'
+             WHEN SUBSTR(sal, 1,4) BETWEEN '1001' AND '2000' THEN 'LEVEL2'
+             WHEN SUBSTR(sal, 1,4) BETWEEN '2001' AND '3000' THEN 'LEVEL3'
+             WHEN SUBSTR(sal, 1,4) BETWEEN '3001' AND '4000' THEN 'LEVEL4'
+                                                             ELSE 'LEVEL5'
+      END "LEVEL"
+      FROM emp;
+      **/
+      
+      select empno, ename, sal, case when SUBSTR(sal, 1,4) <= 1000 Then 'level1'
+                                   when SUBSTR(sal, 1,4) <= 2000 Then 'level2'
+                                   when SUBSTR(sal, 1,4) <= 3000 Then 'level3'
+                                   when SUBSTR(sal, 1,4) <= 4000 Then 'level4'
+                                                                 ELSE 'level5'
+                                       END "Level"
+                       from emp;
