@@ -500,4 +500,83 @@ Title: SQL 단일행 함수를 배웁시다.
   select empno, ename, comm, NVL2(comm, 'Exist', 'NULL') "NVL2" from emp where deptno =30;
   
   
-  5.3 Decode() 함
+  5.3 Decode() 함수
+  Decode 함수는 일반 개발 언어 등에서 사용 중인 분기문인 IF문을 오라클 SQL 안으로 가져온 함수이다.
+  
+  DECODE 함수는 오라클에서만 사용되는 함수로 IF문을 사용해야 하는 조건문을 처리할 수 있다.
+  
+  유형1- A가 B일 경우 '1'을 출력하는 경우
+  DECODE(A, B, 1, NULL)
+  
+  
+  유형1예제: professor 테이블에서 학과번호와 교수명, 학과명을 출력하되 deptno가 101번인 교수만 학과명을
+            "Computer engineering"으로 출력하고 101번이 아닌 교수들은 학과명ㅇ에 아무것도 출력하지 마세요
+            
+            select deptno, name, DECODE(deptno, 101, 'Computer Engineering') "DNAME" from professor;
+
+  
+  유형2- A가 B일 경우 '1'을 출력하고 아닐 경우 '2'를 출력하는 경우
+  DECODE(A,B, '1', '2')
+  
+  
+  유형2예제: professor 테이블에서 학과번호와 교수명, 학과명을 출력하되 deptno가 101번인 교수만 학과명을
+            "Computer engineering"으로 출력하고 101번이 아닌 교수들은 학과명에 ETC라고 출력하세요.
+            
+            select deptno, name, DECODE(deptno, 101, 'Computer Engineering', 'ETC') "DNAME" from professor;
+  
+  
+  유형3예제: professor 테이블에서 학과번호와 교수명, 학과명을 출력하되 deptno가 101번인 교수만 학과명을
+            "Computer engineering"으로 출력하고 102번이면 'Multimedia Engineering', 103번이면 'Software Engineering 이라고 출력하세요.
+            
+            
+            select deptno, name, DECODE(deptno, 101, 'Computer Engineering', 102, 'Multimedia Engineering', 103, 'Software Engineering', 'ETC') "DNAME" from professor;
+            
+            
+ 유형4예제: A가 Bㅣㄹ 경우 중에서 C가 D를 만족하면 '1'을 출력하고 C가 D가 아닐 경우 NULL을 출력하는 경우
+ 
+DECODE(A,B, DECODE(C,D, '1', null))
+ 
+ professor 테이블에서 교슈의 이름과 부서번호를 출력하고 101번 부서 중에서 이름이 "Audie Murphy" 교수에게
+ "BEST!"라고 출력하고 101번 부서 중에서 이름이 "Audie Murphy"가 아닌 나머지에는 NULL ㅏㄱㅄ을 출력 하세요
+ 만약 101번 외 다른 학과에 "AUdie MUurphy 교수가 있어도 "BEst!'가 출려되면 안됩니다.
+ 
+ select deptno, name, DECODE(deptno, 101, DECODE(Name, 'Audie Murphy', 'BEST!')) "ETC" from professor;
+ 
+ 
+ 
+ 유형5예제: A가 B일 경우 중에서 C가 D를 만족하면 '1'을 출력하고 C가 D가 아닐 경우 '2'를 출력하는 경우
+ 
+ DECODE(A, B, DECODE(C,D, '1', '2'))
+ 
+ professor 테이블에서 교수의 이름과 부서번호를 출력하고 101번 부서 중에서 이름이 "Audie Murphy" 교수에게
+ "BEST!"라고 출력하고 101번 부서 중에서 이름이 "Audie Murphy"가 아닌 나머지 교수에는 GOOD을 출력 하세요
+ 만약 101번 교수가 아닐 경우 비고란이 공란이 되도록 출력하라
+ 
+ select deptno, name, DECODE(deptno, 101, DECODE(name, 'AUdie Murphy', 'Best!', 'Good!')) "ETC" from professor;
+ 
+ 
+ 유형6 예제: A가 B일 경우 중에서 C가 D를 만족하면 '1'을 출력하고 C가 D가 아닐 경우 '2'를 출력하고 
+             A가 B가 아닐 경우 '3'을 출력하는 경우
+             
+ 
+ professor 테이블에서 교수의 이름과 부서번호를 출력하고 101번 부서 중에서 이름이 "Audie Murphy" 교수에게
+ "BEST!"라고 출력하고 101번 부서 중에서 이름이 "Audie Murphy"가 아닌 나머지 교수에는 GOOD을 출력 하세요
+ 만약 101번 교수가 아닐 경우 비고란이 "N/A"이 되도록 출력하라
+ 
+ select deptno, name, DECODE(deptno, 101, DECODE(name, 'Audie Murphy', 'Best!', 'Good!'), 'N/A') "ETC" from professor;
+ 
+ 
+ DECODE quiz 1
+ 
+ student 테이블을 사용하여 제1전공(deptno1)이 101번인 학과 학생들의 이름과 주민번호, 성별을 출력하되 서별은 주민번호(jumin) 컬럼을 이용하여 7번째 숫자가 1일 경우 "MAN", 2일 경우 "WOMAN"으로 출력하세요.
+ 
+ 
+ select name, jumin, DECODE(SUBSTR(jumin, 7, 1), '1', 'MAN', '2', 'WOMAN') "gender" from student where deptno1=101;
+ 
+ 
+ DECODE quiz 2
+ 
+ select name, tel, DECODE(SUBSTR(TEL,1,3), '02)', 'SEOUL', '031', 'GYEONGGI', '051', 'BUSAN', '052', 'ULSAN', '055', 'GYEONGNAM') "LOC" from student where deptno1=101;
+ 
+ 
+ 
