@@ -331,3 +331,91 @@ Title: SQL 단일행 함수를 배웁시다.
     
     
     
+    4. 형 변환 함수
+    오라클이란 프로그램은 우리가 일상생활에서 사용하는 데이터들을 컴퓨터로 옮겨서 저장하고 관리 해 주는 프로그램이다.
+
+
+    4.1 묵시적(자동)형 변환과 명시적(수동)형 변환
+    
+    오라클에서 형 변환은 묵시적(자동) 형 변환과 명시적(수동) 형 변환으로 나뉜다.
+    
+    예시1:
+    select 2 + '2' from dual;
+    -> 위의 ' '는 문자로 인식해주는 기능을 가지고 있지만, 따옴표 내에 문자가 숫자이면 자동으로 인식하여
+       숫자로 자동 형 변환을 한다.
+      (Select 2 + TO_NUMBER('2') from dual;)
+      
+      하지만, 실제로 문자가 따옴표 내에 있을 경우 묵시적 형 변환은 일어나지 않는다.
+      
+    예시2:
+    select 2 + 'A' from dual;
+    
+    
+    4.2.TO_CHAR 함수 (날짜 -> 문자로 형 변환하기)
+    
+    문법: TO_CHAR(원래 날짜, '원하는 모양')
+    
+    예시1:
+    SELECT SYSDATE, TO_CHAR(SYSDATE, 'YYYY') "YYYY"
+                  , TO_CHAR(SYSDATE, 'RRRR') "RRRR"
+                  , TO_CHAR(SYSDATE, 'YY') "YY"
+                  , TO_CHAR(SYSDATE, 'RR') "RR"
+                  , TO_CHAR(SYSDATE, 'YEAR') "YEAR"
+                  FROM DUAL;
+    
+   
+   예시2:
+   SELECT SYSDATE, TO_CHAR(SYSDATE, 'MM') "MM"
+                 , TO_CHAR(SYSDATE, 'MON') "MON"
+                 , TO_CHAR(SYSDATE, 'MONTH') "MONTH"
+                 FROM dual;
+    
+    
+   예시3:
+   SELECT SYSDATE, TO_CHAR(SYSDATE, 'DD') "DD"
+                 , TO_CHAR(SYSDATE, 'DAY') "DAY"
+                 , TO_CHAR(SYSDATE, 'DDTH') "DDTH"
+                 FROM dual;
+                 
+   
+   예시4:
+   SELECT SYSDATE, TO_CHAR(SYSDATE, 'RRRR-MM-DD:HH24:MI:SS')
+                  FROM dual;
+                  
+   
+   
+   
+   형 변환 함수 퀴즈: 날짜 변환하기 1
+   
+   student table의 birthday 컬럼을 사용하여 생일이 1월인 학생의 이름과 birthday를 아래 화면과 같이 출력하세요.
+   -> 변경 전
+   select studno, name, birthday from student;
+   
+   -> 변경 후
+   select studno, name, TO_CHAR(birthday, 'DD-MON-YY') from student where TO_CHAR(birthday, 'MM') =01;
+   
+   
+   
+   형 변환 함수 퀴즈: 날짜 변환하기 2
+   
+   emp 테이블의 hiredate 컬럼을 사용하여 입사일이 1, 2, 3월인 사람들의 사번과 이름, 입사일을 출력하세요.
+   
+   ->
+   select empno, ename, TO_CHAR(hiredate, 'YY/MM/DD') from emp where TO_CHAR(hiredate, 'MM') <=03;
+   
+   
+   
+   
+   4.3 TO_CHAR 함수(tntwkgud - 문자형으로 변환하기
+   
+   예시1:
+   emp 테이블을 조회하여 이름이 'ALLEN'인 사원의 사번과 이름과 연봉을 출력하세요. 단, 연봉은 (sla * 12) + comm로 계산하고 천 단위 구분 기호로 표시하세요.
+   
+   ->
+   select empno, ename, sal, comm, TO_CHAR((SAL*12)+comm, '999,999') "SALARY" from emp where ename = 'ALLEN';
+   
+   
+   예시2:
+   professor 테이블을 조회하여 201번 학과에 근무하는 교수들의 이름과 급여, 보너스, 연봉을 아래와 같이 출력하세요. 단 연봉은 (pay*12)+bonus로 계산합니다.
+   
+   select name, pay, bonus, TO_CHAR((PAY*12)+bonus, '999,999') "TOTAL" from professor where deptno = 201;
