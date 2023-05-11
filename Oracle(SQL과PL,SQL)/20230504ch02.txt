@@ -803,4 +803,31 @@ select name, SUBSTR(jumin, 3, 2) "MONTH"
     
     
     특정 조건을 제외한 결과를 출력하기
+    일반적으로 ~ 가 아니다라는 뜻은 NOT을 사용한다.
     
+    예시1: 영문자 대소문자가 포함되지 않는 행을 검색
+    select * from t_Reg
+    where not REGEXP_LIKE(text, '[a-zA-Z]');
+    
+    
+    예시2: 숫자를 포함하지 않는 모든 행을 출력
+    select * from t_reg
+    where not REGEXP_LIKE(text, '[0-9]');
+    
+    
+    사용예제5: 특수 문자 찾기
+    
+    다음 예제는 ! 문자가 들어가는 행을 출력
+    
+    예제5-1:
+    select * from t_reg
+    where REGEXP_LIKE(text, '!');
+
+
+    예제5-2:
+    select * from t_reg
+    where REGEXP_LIKE(text, '?');
+    
+    예제5-3:
+    select * from t_reg
+    where REGEXP_LIKE(text, '*');
