@@ -750,3 +750,30 @@ select name, SUBSTR(jumin, 3, 2) "MONTH"
     where REGEXP_LIKE(id, '^M(a|o)');
     
     
+    예시4-5: 
+    select * from t_reg
+    where REGEXP_LIKE(text, '[a-zA-Z]$');
+    -> $문자를 사용하여 소문자로 끝나는 행 출력
+    
+    
+    예시4-6:
+    select * from t_reg
+    where REGEXP_LIKE(text, '[[:alpha:]]$');
+    -> 4-6 예제는 4-5와 동일하다.
+    
+    
+    예시4-7: 소문자로 시작하지 않는 행을 보여주어라
+    select * from t_reg
+    where REGEXP_LIKE(text, '^[^a-z]');
+    
+    
+    예시4-8: 숫자로 시작하지 않는 행들을 보여달라.
+    select * from t_reg
+    where REGEXP_LIKE(text, '^[^0-9]');
+    
+    
+    예시4-9: 
+    select * from t_reg
+    where REGEXP_LIKE(text, '^[^0-9a-z]');
+    
+    
