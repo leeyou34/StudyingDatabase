@@ -880,3 +880,64 @@ select name, SUBSTR(jumin, 3, 2) "MONTH"
    col "Add Char" FOR a30
    select text, REGEXP_REPLACE(text, '([0-9])', '\1-+') "Add Char"
    from t_reg;
+   
+   
+   사용예제2: t_reg2 테이블에서 아래와 같이 ip의 .(dot) 부분을 모두 삭제하고 출력하는 예
+   
+   SET LINE 200
+   COL no FOR 999
+   COL ip FOR a20
+   COL "DOT REMOVE" FOR a20
+   
+   select no, ip, REGEXP_REPLACE(ip, '\.','') "Dot Remove" from t_reg2;
+   
+   
+   사용예제2-2: 첫 번쨰 dot 만 슬래쉬 기호로 변경하고 싶을 경우 아래와 가티 변경
+   
+   col replace for a20
+   select no, ip, REGEXP_REPLACE(ip, '\.','/', 1,1) "REPLACE" FROM t_reg2;
+
+   
+   사용 예제 3: 사용자에게 입력받은 문자 가운데 공백이 여러 개 들어 있을 경우 그 공백을 제거시키는 방법
+   
+   SELECT REGEXP_REPLACE('aaa bbb', '(){1,}','') from dual;
+   
+   
+   사용 예제 3-2: 
+   SELECT REGEXP_REPLACE('aaa bbb', '(){2,}','') "ONE",
+          REGEXP_REPLACE('aaa  bbb', '(){2,}','') "TWO"
+          FROM dual;
+          
+   사용 예제 3-3:
+   SELECT REGEXP_REPLACE('aaa bbb', '(){2,}', '*') "ONE",
+          REGEXP_REPLACE('aaa  bbb', '(){2,}', '*') "TWO",
+          REGEXP_REPLACE('aaa   bbb', '(){2,}', '*') "THREE"
+          FROM dual;
+          
+   사용 예제 4: 사용자가 검색어를 입력할 때 공백 문자를 가장 먼저 입력하고 아이디 중간에도 공백이 이써서 모든 공백을 제거하기
+   
+   SET verify OFF
+   SELECT studno, name, id from student where id=REGEXP_REPLACE('&id', '(){1,}', '');
+   
+   
+   사용 예제 4-1: 
+   select studno, name, id from student where id=REGEXP_REPLACE('&id', '(){1,}' ,'');
+   
+   
+   사용 예제 5: 특정 문자열의 형태를 다른 형태로 바꿀 때 "20120324" 형태로 이뤄진 데이터를 "2012:03:24"의 형태로 변형하기
+   
+   SELECT REGEXP_REPLACE('20141023', '([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})' , '\1-\2-\3') from dual;
+   
+   
+   6.3 REGEXP_SUBSTR 함수
+   
+   REGEXP_SUBSTR 함수는 SUBSTR 함수의 확장판으로 특정 패턴에서 주어진 문자를 추출해 내는 함수입니다.
+   
+   SELECT REGEXP_SUBSTR('ABC* *DEF $GHI%KJL', '[^ ] +[DEF]') from dual;
+   
+   
+   사용 예
+   
+   COL url FOR a20
+   SELECT name, LTRIM(REGEXP_SUBSTR(hpage, '/([[:alnum:]]+\.?){3,4}?'), '/') "URL" from professor where hpage IS NOT NULL;
+   
