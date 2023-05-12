@@ -975,5 +975,34 @@ select name, SUBSTR(jumin, 3, 2) "MONTH"
   
   7. 추가로 알아야 할 정규식 함수
   
+  7.1 특정 문자의 개수를 세는 REGEXP_COUNT 함수
+  예제1: 주어진 문자열에서 대문자'A'가 몇개 인지 찾아주는 예
+  
+  set pagesize 50
+  select text, REGEXP_COUNT(text, 'A') from t_reg;
+  
+  
+  예제2: c 가 나오는 개수를 세는 예제
+  select text, REGEXP_COUNT(text, 'c', 3) from t_reg;
+  
+  
+  예제3: 
+  select text, REGEXP_COUNT(text, 'c') "RESULT 1"
+                    , REGEXP_COUNT(text, 'c', 1, 'i') "RESULT 2"
+                    from t_reg;
+  
+  예제4: 아래화면은 탈출 문자(ESCAPE)를 사용하는 예를 보여줌
+  
+  SELECT text, REGEXP_COUNT(text, '.') RESULT1
+             , REGEXP_COUNT(text, '\.') RESULT2
+             from t_reg;
+             
+  예제5: 어떤 문자를 검색할 떄 사용하는 3가지 방법
+  
+  SELECT text, 
+               REGEXP_COUNT(text, 'aa') RESULT1
+             , REGEXP_COUNT(text, 'a{2}') RESULT2
+             , REGEXP_COUNT(text, '(a)(a)') RESULT3
+             from t_reg;
   
   
