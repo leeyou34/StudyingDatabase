@@ -802,6 +802,8 @@ select name, SUBSTR(jumin, 3, 2) "MONTH"
     where REGEXP_LIKE(ip, '^[172]{3}\.[16]{2}\.[168]{3}\.');
     
     
+    
+    
     특정 조건을 제외한 결과를 출력하기
     일반적으로 ~ 가 아니다라는 뜻은 NOT을 사용한다.
     
@@ -831,3 +833,50 @@ select name, SUBSTR(jumin, 3, 2) "MONTH"
     예제5-3:
     select * from t_reg
     where REGEXP_LIKE(text, '*');
+
+    -> ?, * 기호는 모든 것으로 해석 되기에 해당 특수 문자를 출력하기 위해선 다음과 같이 쿼리를 작성한다.
+    
+    예제5-4:
+    select * from t_reg
+    where REGEXP_LIKE(text, '\?');
+    
+    select * from t_reg
+    where REGEXP_LIKE(text, '\*');
+    
+    
+    예제5-5:
+    select * from t_reg
+    where not REGEXP_LIKE(text, '\?');
+    
+    
+    
+    6.2. REGEXP_REPLACE 함수
+    이 함수는 REPLACE 함수를 확장한 개념으로 주어진 문자여레서 특정 패턴을 찾아서 주어진 다른 모양으로 치환하는 함수이다.
+    
+    문법:
+    REGEXP_REPLACE(source_char, pattern
+                                        [, replace_string
+                                        [, position
+                                        [, occurence
+                                        [, match_param]]]
+                                        )
+                                        
+   -> 첫 번째 인수인 source는 원본 데이터를 의미
+   -> 두 번째 인수인 pattern은 찾고자 하는 패턴을 의미
+   -> 세 번째 인수인 replace_string은 변환하고자 하는 패턴을 의미
+   -> 네 번째 인수인 position은 검색 시작 위치를 지정
+   -> 다섯 번째 인수인 occurence는 패턴과 일치가 발생하는 횟수
+   -> 여섯 번째 인수인 match_parameter는 기본 ㄱ밧으로 검색되는 옵션을 변경 ( c: 대소문자를 구분해서 검색
+                                                                             i: 대소문자를 구분하지 않고 검색
+                                                                             m: 검색 조건을 여러 줄로 줄 수 있다.
+   사용예제1: 예제 테이블 t_reg에서 숫자 부부늘 '*'기호로 전부 변경
+   
+   col "NO -> CHAR" FOR a20
+   select text, REGEXP_REPLACE(text, '[[:digit:]]', '*') "NO ->CHAR" from t_reg;
+    
+   
+   사용예제2: 특정 패턴을 차자서 패턴을 변경하기
+   
+   col "Add Char" FOR a30
+   select text, REGEXP_REPLACE(text, '([0-9])', '\1-+') "Add Char"
+   from t_reg;
