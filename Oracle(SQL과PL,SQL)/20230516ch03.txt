@@ -67,4 +67,142 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
       
      예시3:
      SELECT deptno, job, avg(nvl(sal,0)) "AVG_SAL" from emp GROUP BY deptno, job ORDER by 1,2;
+        -> GROUP BY 결과 정렬이 안되어서 수동으로 정렬함
+        
+        
+     예시4:
+     select deptno, job, avg(nvl(sal,0)) "AVG_SAL" from emp GROUP BY deptno;
+     -> GROUP BY 절에 사용된 컬럼이라도 select 절에는 사용되지 않아도 된다.
      
+     
+     예시5:
+     select deptno no, job, avg(NVL(sal,0)) "AVG_SAL" from emp GROUP by no;
+     ->
+     
+     
+     
+     
+     3. Having 절을 사용해 그룹핑한 조건으로 검색
+     
+     예시6:
+     select deptno, AVG(NVL(SAL,0)) from emp where AVG(NVL(sal,0)) > 2000;
+     WHERE AVG(NVL(sal,0)) > 2000
+     
+     
+     where 그룹 함수를 비교 조건으로 쓸 수가 없기 떄문이다.
+     
+     
+     예시7:
+     select deptno, avg(NVL(sal,0)) from emp where deptno > 10 group by deptno Having AVG(NVL(sal,0)) > 2000;
+     
+     
+     
+     4. 반드시 알아야 하는 다양한 분석 함수들
+        
+        
+     4.1 각 기준별 소계를 요약해서 보여 주는 ROLLUP()함수
+         
+         예시1:
+         부서와 직업별 평균 급여 및 사원 수와 부서별 평균 급여와 사원 수, 전체 사원의 평균 급여와 사원 수를 구하세요.
+         
+         - 부서와 직업별 평균 급여 및 사원 수
+         - 부서별 평균 급여와 사원 수
+         - 전체 사원의 평균 급여와 사원 수
+         
+         SELECT deptno, NULL job, ROUND(AVG(sal),1) avg_sal, COUNT(*) cnt_emp from emp
+         GROUP BY deptno
+         UNION ALL
+         SELECT deptno, job, ROUND(AVG(sal),1) avg_sal, COUNT(*) ent_emp
+         FROM emp
+         GROUP BY deptno, job
+         UNION ALL
+         SELECT null deptno, null job, ROUND(AVG(sal),1) avg_sal, COUNT(*) cnt_emp
+         FROM emp
+         ORDER BY deptno, job;
+         
+         
+         -> SQL 문장이 기니 ROLLUP 그룹 함수를 사용해서 SQL문을 만들어라
+         
+         GROUP BY ROLLUP (DEPTNO, JOB); M+1;
+                           -------> 1. DEPTNO 그룹 집계
+                                    2. DEPTNO, JOB 그룹 집계
+                                    3. 전체 그룹 집계
+         
+         SELECT deptno, job, ROUND(AVG(sal),1) avg_sal, COUNT(*) cnt_emp From emp GROUP BY ROLLUP (Deptno, job);
+     
+     
+        예시2:
+        SELECT deptno, position, COUNT(*), SUM(PAY) FROM professor GROUP BY position, ROLLUP(deptno);
+        
+        
+        예시3:
+        SELECT deptno, position, COUNT(*), SUM(PAY) FROM professor GROUP BY deptno, ROLLUP(position);
+        
+        
+        
+        예시4:
+        -> setting 시작
+        CREATE TABLE professor2
+        AS SELECT deptno, position, pay
+        FROM professor;
+        
+        SELECT * FROM professor2;
+        
+        
+        
+        -> 테이블에 값 입력
+        
+        INSERT INTO professor2 VALUES(101, 'instructor' , 100);
+        
+        INSERT INTO professor2 VALUES(101, 'a full professor', 100);
+        
+        INSERT INTO professor2 VALUES(101, 'assistant professor', 100);
+        
+        commit;
+        
+        
+        SELECT * FROM professor2 ORDER BY deptno, position;
+        
+        
+        
+        
+        예시5:
+        SELECT deptno, position, SUM(pay)
+        FROM professor2
+        GROUP BY deptno, ROLLUP(position);
+        
+        
+        일반 GROUP BY 절의 SQL 실행 계획
+        
+        explain plan for
+        SELECT deptno, NULL job, ROUND(AVG(sal),1) avg_sal, COUNT(*) cnt_emp
+        FROM emp
+        GROUP BY deptno
+        UNION ALL
+        SELECT deptno, job, ROUND(AVG(SAL),1) avg_sal, COUNT(*) cnt_emp
+        FROM emp
+        GROUP BY deptno, job
+        UNION ALL
+        SELECT NULL deptno, NULL job, ROUND(AVG(sal),1) avg_sal, COUNT(*) cnt_emp
+        FROM emp
+        ORDER BY deptno, job
+        ;
+        
+        
+        col PLAN_TABLE_OUTPUT format a80
+        
+        select * from table(dbms_xplan.display);
+        
+        
+        
+        [ROLLUP 그룹 함수 SQL 실행 계획]
+        
+        SELECT deptno, job, ROUND(AVG(sal),1) avg_sal, COUNT(*) cnt_emp
+        FROM emp
+        GROUP BY ROLLUP (deptno, job);
+        
+        
+        
+        예시6:
+        col PLAN_TABLE_OUTPUT format a80
+        select * from table(dbms_xplan.display);
