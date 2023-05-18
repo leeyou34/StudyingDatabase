@@ -206,3 +206,107 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
         예시6:
         col PLAN_TABLE_OUTPUT format a80
         select * from table(dbms_xplan.display);
+
+
+
+        4.2 CUBE() 함수 - 소계와 전체 합계까지 출력하는 함수
+        CUBE 함수는 ROLLUP() 함수와 같이 각 소계도 출력하고 추가로 전체 총계까지 출력한다.
+        
+        
+        사용 예1
+        부서별 평균 급여와 사원 수, 직급별 평균 급여와 사원 수, 부서와 직급별 평균 급여와 사원 수, 전체 평균 월 급여와 사원 수를 구하세요.
+        
+        
+        위 문제를 해결하려면, 총 4개의 그룹이 필요하다.
+        
+        - 부서별 평균 급여와 사원 수
+        - 직급별 평균 급여와 사원 수
+        - 부서와 직급별 평균 급여와 사원 수
+        - 전체 평균 월 급여와 사원 수
+        
+        
+        SELECT deptno, NULL JOB, ROUND(AVG(sal),1) AVG_SAL, COUNT(*) CNT_EMP
+        FROM emp
+        GROUP BY deptno
+        UNION ALL
+        SELECT NULL deptno, job, ROUND(AVG(sal),1) AVG_SAL, COUNT(*) CNT_EMP
+        FROM emp
+        GROUP BY job
+        UNION ALL
+        SELECT deptno, job, ROUND(AVG(sal),1) AVG_SAL, COUNT(*) CNT_EMP
+        FROM emp
+        GROUP BY deptno, job
+        UNION ALL
+        SELECT NULL deptno, NULL job, ROUND(AVG(sal),1) AVG_SAL, COUNT(*) CNT_EMP
+        FROM emp
+        Order by deptno, job;
+        
+        
+        
+        일반 GROUP BY 절의 SQL 실행 계획
+        
+        ->
+        explain plan for
+        select deptno, NULL JOB, ROUND(AVG(sal),1) AVG_SAL, COUNT(*) CNT_EMP
+        FROM emp
+        GROUP BY deptno
+        UNION ALL
+        SELECT NULL deptno, job, ROUND(AVG(sal),1) AVG_SAL, COUNT(*) CNT_EMP
+        FROM emp
+        GROUP BY job
+        UNION ALL
+        SELECT deptno, job, ROUND(AVG(sal),1) AVG_SAL, COUNT(*) CNT_EMP
+        FROM emp
+        GROUP BY deptno, job
+        UNION ALL
+        SELECT NULL deptno, NULL job, ROUND(AVG(sal),1) AVG_SAL, COUNT(*) CNT_EMP
+        FROM emp
+        ORDER BY deptno, job;
+        
+        
+        col Plan_Table_Output format a80
+        select * from table(dbms_xplan.display);
+        
+        -> 위의 쿼리를 작성해서 실행하면, CPU의 몇퍼센트를 사용하는지 알 수 있다.
+        
+        
+        이번에는 동일한 결과를 얻기 위해 CUBE() 함수를 사용하여 SQL문을 작성한다.
+        참고로 CUBE() 함수에 지정된 컬럼들의 수를 N일 때 2*N승 소계(소그룹)이 생성된다.
+        
+        문법: 
+        
+        GROUP BY ROLLUP (DEPTNO, JOB) ; -> 2*N 그룹이 생김 (ROLLUP에 비해 연산을 많이 함)
+                          ㄴ 
+                              1. deptno 그룹 집계
+                              2. job 그룹 집계
+                              3. deptno, job 그룹 집계
+                              4. 전체 그룹 집계
+       
+       
+       SELECT deptno, job, ROUND(AVG(sal),1) avg_sal, COUNT(*) cnt_emp
+       FROM emp
+       GROUP BY CUBE (deptno, job)
+       ORDER BY deptno, job;
+       
+       
+       cube()함수 SQL 실행 계획
+       ->
+       explain plan for
+       SELECT deptno, job, ROUND(AVG(sal),1) avg_sal, COUNT(*) cnt_emp
+       FROM emp
+       GROUP BY CUBE (deptno, job)
+       ORDER BY deptno, job;
+       
+       col PLAN_TABLE_OUTPUT format a80
+       select * from table(dbms_xplan.display);
+       
+       
+       CUBE 함수를 사용하면 SQL이 훨씬 간결해지고 EMP 테이블도 1번만 읽습니다.
+       
+       
+       
+       
+       4.3 GROUPING SETS() 함수
+       
+       
+        
