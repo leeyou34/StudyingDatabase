@@ -308,5 +308,137 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
        
        4.3 GROUPING SETS() 함수
        
+       그루핑 조건이 여러 개일 경우 아주 유용하게 사용된다.
        
+       예시1: student 테이블에서 학년별로 학생들의 인원수 합계와 학과별로 인원수의 합계를 구해야 하는 경우에 기존에는 학년별로 인원수 합계를 구하고 별도로 학과별로 인원수 합계를 구한 후 UNION 연산을 했어야 했다.
+       
+       SELECT grade, COUNT(*)
+       FROM  student
+       GROUP BY grade
+       UNION
+       SELECT deptno1, COUNT(*)
+       FROM student
+       GROUP BY deptno1;
+       
+        -> 기존 방법으로 조회
         
+        
+        SELECT grade, deptno1, COUNT(*)
+        FROM student
+        GROUP BY GROUPING SETS(grade, deptno1);
+
+        -> GROUPING SETS를 사용하여 조회를 한 화면
+        
+        
+        
+        예시2:
+        SELECT grade, deptno1, COUNT(*), SUM(height), SUM(weight)
+        FROM student
+        GROUP BY GROUPING SETS(grade, deptno1);
+        
+        
+        4.4 LISTAGG()함수
+        
+        예시 1:
+        SET LINE 200
+        COL listagg FOR a50
+        SELECT deptno,
+               LISTAGG(ename, '->') WITHIN GROUP (ORDER BY hiredate) "LISTAGG"
+        FROM emp
+        GROUP BY deptno;
+        
+        -> 주의 사항, Return 되는 값이 4000 BYTE가 넘을 경우 오류가 발생한다.
+        
+        ***참고
+        만약 저장된 4,000 바이트가 넘는 출력 결과를 나올 수 있다면 그 형태는 VARCHAR2 형태나 CLOB 형태가 있다
+        각각의 형태에 따라 쿼리가 달라지는데 문법이 약간 다르다
+        
+        예시 2: Return type이 varchar2 형태일 때.
+        
+        SELECT deptno,
+                  SUBSTR(
+                    XMLAGG(XMLELEMENT(X, ',', ename) ORDER BY ename)
+        .EXTRACT('//text()').getStringVal()
+                 ,2) AS DEPT_ENAME_LIST
+        FROM emp A
+        GROUP BY deptno;
+        
+        
+        예시 3: RETURN type: CLOB
+        
+        SELECT deptno,
+                  SUBSTR(
+                    XMLAGG(XMLELEMENT(X, ',' , ename) ORDER BY ename)
+                          .EXTRACT('//text()').getStringVal()
+                ,2) AS DEPT_ENAME_LIST
+        FROM emp A
+        GROUP BY deptno;
+        
+        
+        
+        
+        
+        4.5 PIVOT() 함수
+        PIVOT 함수는 row 단위를 column 단위로 변경해 주고 UNPIVOT 함수는 반대로 column 단위를 row 단위로 변경해 주는 기능.
+        
+        (1) Pivot 기능을 사용하지 않고 decode 함수를 활용하여 달력 만든다.
+        
+        예시1:
+        COL sun FOR a4
+        COL mon FOR a4
+        COL tue FOR a4
+        COL wed FOR a4
+        COL thu FOR a4
+        COL fri FOR a4
+        COL sat FOR a4
+        
+        SELECT MAX(DECODE(day, 'SUN', dayno)) SUN ,
+               MAX(DECODE(day, 'MON', dayno)) MON ,
+               MAX(DECODE(day, 'TUE', dayno)) TUE ,
+               MAX(DECODE(day, 'WED', dayno)) WED ,
+               MAX(DECODE(day, 'THU', dayno)) THU ,
+               MAX(DECODE(day, 'FRI', dayno)) FRI ,
+               MAX(DECODE(day, 'SAT', dayno)) SAT
+        FROM cal
+        GROUP BY weekno
+        ORDER BY weekno;
+               
+               
+               
+        첫 번쨰 단계로 먼저 DECODE() 부분
+        
+        예시2:
+        SELECT DECODE(day, 'SUN', dayno) SUN,
+               DECODE(day, 'MON', dayno) MON,
+               DECODE(day, 'TUE', dayno) TUE,
+               DECODE(day, 'WED', dayno) WED,
+               DECODE(day, 'THU', dayno) THU,
+               DECODE(day, 'FRI', dayno) FRI,
+               DECODE(day, 'SAT', dayno) SAT
+        FROM cal;
+               
+        
+        
+        예시3:
+        
+        SELECT MAX(DECODE(day, 'SUN', dayno)) SUN,
+               MAX(DECODE(day, 'MON', dayno)) MON,
+               MAX(DECODE(day, 'TUE', dayno)) TUE,
+               MAX(DECODE(day, 'WED', dayno)) WED,
+               MAX(DECODE(day, 'THU', dayno)) THU,
+               MAX(DECODE(day, 'FRI', dayno)) FRI,
+               MAX(DECODE(day, 'SAT', dayno)) SAT
+        FROM cal;
+        
+        
+        
+        예시4:
+        
+        SEELCT ASCII('2') FROM dual;
+        
+        SELECT ASCII('29') FROM dual;
+        
+        SELECT ASCII('8') FROM dual;
+        
+        
+        예시
