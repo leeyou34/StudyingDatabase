@@ -441,4 +441,136 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
         SELECT ASCII('8') FROM dual;
         
         
-        예시
+        
+        예시5:
+        
+        SELECT MAX(DECODE(day, 'SUN', dayno)) SUN,
+               MAX(DECODE(day, 'MON', dayno)) MON,
+               MAX(DECODE(day, 'TUE', dayno)) TUE,
+               MAX(DECODE(day, 'WED', dayno)) WED,
+               MAX(DECODE(day, 'THU', dayno)) THU,
+               MAX(DECODE(day, 'FRI', dayno)) FRI,
+               MAX(DECODE(day, 'SAT', dayno)) SAT
+        FROM cal
+        GROUP BY weekno;
+        
+        
+        
+        예시6:
+        
+        SELECT MAX(DECODE(day, 'SUN', dayno)) SUN,
+               MAX(DECODE(day, 'MON', dayno)) MON,
+               MAX(DECODE(day, 'TUE', dayno)) TUE,
+               MAX(DECODE(day, 'WED', dayno)) WED,
+               MAX(DECODE(day, 'THU', dayno)) THU,
+               MAX(DECODE(day, 'FRI', dayno)) FRI,
+               MAX(DECODE(day, 'SAT', dayno)) SAT
+        FROM cal
+        GROUP BY weekno
+        ORDER BY weekno;
+        
+        
+        (2) PIVOT 기능을 사용하여 달력 만들기
+        
+        예시1
+        COL week FOR a4
+        SELECT * FROM (SELECT weekno "WEEK", day, dayno FROM cal)
+        PIVOT
+        ( MAX(dayno) FOR day IN('SUN' AS "SUN" ,
+                                'MON' AS "MON" ,
+                                'TUE' AS "TUE" ,
+                                'WED' AS "WED" ,
+                                'THU' AS "THU" ,
+                                'FRI' AS "FRI" ,
+                                'SAT' AS "SAT" )
+         )
+         ORDER BY "WEEEK" ;
+         
+         
+         (3)  EMP 테이블에서 부서별로 각 직급별 인원이 몇 명인지 계산하기
+         * DECODE() 함수를 사용하는 방법
+         
+         예시1:
+         SELECT deptno,
+                COUNT(DECODE(job, 'CLERK', '0'))     "CLERK",
+                COUNT(DECODE(job, 'MANAGER', '0'))   "MANAGER",
+                COUNT(DECODE(job, 'PRESIDENT', '0')) "PRESIDENT",
+                COUNT(DECODE(job, 'ANALYST', '0'))   "ANALYST",
+                COUNt(DECODE(job, 'SALESMAN', '0'))  "SALESMAN"
+         FROM emp
+         GROUP BY deptno
+         ORDER BY deptno;
+         
+         -> JOB이 CLERK라면 0을 출력해라.
+         
+         
+         예시2:
+         
+         SELECT deptno,
+                COUNT(DECODE(job, 'CLERK', '0'))     "CLERK",
+                COUNT(DECODE(job, 'MANAGER', '0'))   "MANAGER",
+                COUNT(DECODE(job, 'PRESIDENT', '0')) "PRESIDENT",
+                COUNT(DECODE(job, 'ANALYST', '0'))   "ANALYST",
+                COUNt(DECODE(job, 'SALESMAN', '0'))  "SALESMAN"
+         FROM emp;
+         
+         
+         
+         예시3:
+         
+         COL CLERK FOR 9999999
+         COL MANAGER FOR 9999999
+         COL PRESIDENT FOR 9999999
+         COL ANALYST FOR 9999999
+         COL SALESMAN FOR 9999999
+         
+         SELECT deptno,
+               COUNT(DECODE(job, 'CLERK', '9'))     "CLERK",
+               COUNT(DECODE(job, 'MANAGER', '9'))   "MANAGER",
+               COUNT(DECODE(job, 'PRESIDENT', '9'))  "PRESIDENT",
+               COUNT(DECODE(job, 'ANALYST', '9'))   "ANALYST",
+               COUNT(DECODE(job, 'SALESMAN', '9'))  "SALESMAN"
+         FROM emp
+         GROUP BY deptno;
+         
+         
+         
+         예시4:
+         SELECT * FROM (SELECT deptno, job, empno FROM emp)
+         PIVOT
+         (
+              COUNT(empno) FOR  job IN ('CLERK' AS "CLERK",
+                                        'MANAGER' AS "MANAGER",
+                                        'PRESIDENT' AS "PRESIDENT",
+                                        'ANALYST' AS "ANALYST",
+                                        'SALEMAN' AS "SALESMAN")
+         )
+         ORDER BY deptno;
+         
+         
+         
+         예시5:
+         COL C_COUNT FOR 9999999
+         COL C_SUM FOR 9999999
+         COL M_COUNT FOR 9999999
+         COL M_SUM FOR 9999999
+         COL P_COUNT FOR 9999999
+         COL P_SUM FOR 9999999
+         COL A_COUNT FOR 9999999
+         COL A_SUM FOR 9999999
+         COL S_COUNT FOR 9999999
+         COL S_SUM FOR 9999999
+         
+         SELECT * FROM (SELECT deptno, job, empno, sal
+                        FROM emp )
+         PIVOT
+         (
+              COUNT(empno) AS COUNT,
+              SUM(NVL(sal,0)) AS SUM FOR job IN('CLERK' AS      "C",
+                                                'MANAGER' AS    "M",
+                                                'PRESIDENT' AS  "p",
+                                                'ANALYST' AS    "A",
+                                                'SALESMAN' AS   "S" )
+          )
+          ORDER BY deptno;
+                                                
