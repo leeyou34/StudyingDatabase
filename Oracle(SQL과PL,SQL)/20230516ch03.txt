@@ -574,3 +574,24 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
           )
           ORDER BY deptno;
                                                 
+
+
+
+          4.6 UNPIVOT() 함수
+          UNPIVOT 테이블은 PIVOT과 반대의 개념으로 합쳐 있는 것을 풀어서 보여주는 역할을 한다.
+          
+          테스트를 위한 아래의 테이블 생성
+          
+          CREATE TABLE Upivot
+          AS SELECT * FROM (SELECT deptno, job, empno from emp)
+            PIVOT
+            (
+              COUNT(empno)
+                FOR job IN  ('CLERK' AS "CLERK", 
+                             'MANAGER' AS "MANAGER",
+                             'PRESIDENT' AS "PRESIDENT",
+                             'ANALYST' AS "ANALYST",
+                             'SALESMAN' AS "SALESMAN")
+            );
+            
+            select * from upivot;
