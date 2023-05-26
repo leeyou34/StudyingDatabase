@@ -595,3 +595,111 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
             );
             
             select * from upivot;
+
+
+
+          예시2:
+          SELECT * FROm upivot
+          unpivot (
+          empno FOR job in (CLerk,Manager, PRESIDENT, ANALYST, SALESMAN) );
+          
+          -> Unpivot으로 위의 결과를 풀기 가능
+          
+          
+          
+          4.7 LAG() 함수
+          
+          문법:
+          
+          LAG(출력할 컬럼명, OFFSET, 기본 출력 값)
+          OVER(Query_partition구문, ORDER BY 정렬할 컬럼)
+          
+          
+          예시1:
+          SELECT ename, hiredate, sal,
+                 LAG(sal, 1, 0) OVER (ORDER BY hiredate) "LAG"
+          FROM emp;
+          
+          
+          예시2:
+          SELECT ename, hiredate, sal,
+                 LAG(sal, 3,2) OVER (ORDER BY hiredate) "LAG"
+          FROM emp;
+          
+          
+          
+          
+          4.8 LEAD() 함수
+          
+          LEAD() 함수는 LAG()함수와 반대로 이후의 값을 가져오는 함수이다.
+          
+          
+          예시1:
+          SELECT ename, hiredate, sal,
+                 LEAD(sal, 2, 1) OVER (ORDER by hiredate) "LEAD"
+          FROM emp;
+          
+          
+          
+          
+          4.9 RANK() 함수 - 순위 출력 함수
+          
+          RANK 함수는 주어진 컬럼 값의 그룹에서 값의 순위를 계싼한 후 순위를 출력해 준다.
+          
+          
+          * 특정 데이터의 순위 확인하기
+          RANK(조건 값) WITHIN GROUP (ORDER BY 조건 값 컬럼명 [ASC | DESC] )
+          
+          
+          예시1:
+          SELECT RANK('SMITH') WITHIN GROUP (ORDER BY ename) "RANK"
+          FROM emp;
+          
+          select ename FROM emp ORDER BY ename;
+          
+          
+          
+          예시2:
+          -> RANK 뒤에 나오는 데이터와 ORDER BY 뒤에 나오는 데이터는 같은 컬럼이어야 한다.
+          
+          SELECT RANK('SMITH') WITHIN GROUP (ORDER BY hiredate) "RANK"
+          FROM emp;
+          
+          SELECT RANK('SMITH') WITHIN GROUP (ORDER BY hiredate) "RANK"
+          -> 에러가 뜬다. 입사일로 정렬시켜 놓고 이름의 순위를 찾아서 에러 발생
+          
+          
+          * RANK () OVER (ORDER BY 조건컬럼명 [ASC | DESC ] )
+          
+          예시1:
+          emp 테이블에서 사원들의 empno, ename, sal, 급여 순위를 출력하세요.
+          
+          SELECT empno, ename, sal,
+                 RANK() OVER (ORDER BY sal ) AS RANK_ASC,
+                 RANK() OVER (ORDER BY sal DESC) AS RANK_DESC
+          FROM emp;
+          
+          
+          
+          예시2:
+          emp 테이블에서 10번 부서에 속한 직원들의 사번과 이름, 급여, 해당 부서 내의 급여 순위를 출력하세요.
+          
+          SELECT empno, ename, sal,
+                RANK() OVER (ORDER BY sal DESC) "RANK"
+          FROM emp
+          WHERE deptno =10;
+         
+         
+         
+         예시3:
+         emp 테이블을 조회하여 사번, 이름, 급여, 부서번호, 부서별 급여 순위를 출력하시요(부서별 급여 순위 부분을 잘 보세요)
+         
+         SELECT empno, ename, sal, deptno,
+                RANK() OVER (PARTITION BY deptno
+                             ORDER BY sal DESC) "RANK"
+         FROM emp;
+          
+          
+          
+          
+          
