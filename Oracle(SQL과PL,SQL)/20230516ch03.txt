@@ -699,7 +699,86 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
                              ORDER BY sal DESC) "RANK"
          FROM emp;
           
+         
+         
+         예시4:
+         
+         emp 테이블을 조회하여 empno, ename, sal, deptno, 같은 부서 내 job 별로 급여 순위를 출력하세요.
+         
+         select empno, ename, sal, deptno,
+                RANK() OVER (PARTITION BY deptno, job
+                             ORDER BY sal DESC ) "RANK"
+         FROM emp;
           
           
           
+         4.10 DENSE_RANK 순위 함수
+         연속된 순위를 보여준다.
+         
+         예시1:
+         SELECT empno, ename, sal,
+                RANK() OVER (ORDER BY sal DESC) sal_rank,
+                DENSE_RANK() OVER (ORDER BY sal DESC) sal_dense_rank
+          FROM emp;
           
+          
+         4.11 ROW_NUMBER() 순위 함수
+         
+         ROW_NUMBER() 함수는 동일 값이라도 고유한 순위를 부여한다.
+         
+         예시1:
+         
+         SELECT empno, ename, job, sal,
+                RANK() OVER (ORDER BY sal DESC) sal_rank,
+                DENSE_RANK() OVER (ORDER BY sal DESC) sal_dense_rank,
+                ROW_NUMBER() OVER (ORDER BY sal DESC) sal_row_num
+         FROM emp;
+          
+          
+         예시1-1 (응용): 부서번호가 10,20번인 사원에서 부서별로 급여가 낮은 순으로 순위 부여
+         
+         select deptno
+                ,sal
+                ,empno
+                ,ROW_NUMBER() OVER (PARTITION BY deptno ORDER BY sal)              row_number1
+                ,RANK()       OVER (PARTITION BY deptno ORDER BY sal)              rank1
+                ,DENSE_RANK() OVER (PARTITION BY deptno ORDER BY sal)              dense_rank1
+                ,ROW_NUMBER() OVER (PARTITION BY deptno ORDER BY sal, empno)       row_number2
+                ,RANK()       OVER (PARTITION BY deptno ORDER BY sal, empno)       rank2
+                ,DENSE_RANK() OVER (PARTITION BY deptno ORDER BY sal, empno)       dense_rank2
+         FROM emp
+         WHERE deptno IN('10', '20')
+         ORDER BY deptno, sal, empno;
+
+         - 1번 그룹 ORDER BY 절 컬럼: SAL             -> sal 컬럼으로만 정렬 했기에 중복된 데이터가 발생 가능하며 정렬 처리를 고려하지 않았다.
+         - 2번 그룹 ORDER BY 절 컬럼: SAL, empno      -
+         
+         
+         
+         4.12 SUM() OVER를 활용한 누계 구하기
+         
+         예시1
+         panmae 테이블을 사용하여 1000번 대리점의 판매 내역을 출력하되 판매일자, 제품코드, 판매량, 누적 판매금액을 아래와 같이 출력하세요.
+         
+         select p_date, p_code, p_qty, p_total,
+                SUM(p_total) OVER (ORDER BY p_total) "TOTAL"
+         FROM panmae
+         where p_store = 1000;
+         
+         
+         예시2
+         panmae 테이블을 사용하여 1000번 대리점의 판매 내역을 제품 코드별로 분류한 후 판매일자,
+         제품코드, 판매량, 판매금액, 누적판매금액을 아래와 같이 출력하세요.
+         
+         select p_date, p_code, p_qty, p_total,
+                SUM(p_total) OVER (PARTITION BY p_code ORDER BY p_total) "TOTAL"
+         FROM panmae
+         WHERE p_store = 1000;
+         
+         
+         예시3
+         panmae 테이블을 조회하여 제품코드, 판매점, 판매 날짜, 판매량, 판매 금액과 판매점별로 누적판매금액을 구하세요.
+         
+         select p_code, p_store, p_date, p_qty, p_total,
+              SUM(p_total) OVER (PARTITION BY p_code, p_store ORDER BY p_date) "TOTAL"
+         FROM panmae;
