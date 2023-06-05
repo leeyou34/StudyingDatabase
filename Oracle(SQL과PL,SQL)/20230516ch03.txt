@@ -915,4 +915,55 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
        
        set pagesize 50
        select empno, ename, job, sal From emp;
+     
+/**
+        SELECT
+                DEPTNO,
+                SUM(CASE WHEN JOB = 'CLERK' THEN SAL ELSE 0 END) AS CLERK,
+                SUM(CASE WHEN JOB = 'MANAGER' THEN SAL ELSE 0 END) AS MANAGER,
+                SUM(CASE WHEN JOB = 'PRESIDENT' THEN SAL ELSE 0 END) AS PRESIDENT,
+                SUM(CASE WHEN JOB = 'ANALYST' THEN SAL ELSE 0 END) AS ANALYST,
+                SUM(CASE WHEN JOB = 'SALESMAN' THEN SAL ELSE 0 END) AS SALESMAN,
+                SUM(SAL) AS TOTAL
+            FROM EMP
+            GROUP BY DEPTNO
+            ORDER BY DEPTNO ASC;
+
+      하기의 쿼리를 참고 할 것... 참고로 출력 되는 값은 책의 내용과 다르다...ㅠㅠ
+**/
+
+      SELECT
+          COALESCE(TO_CHAR(DEPTNO), 'null') AS DEPTNO,
+          COALESCE(SUM(CASE WHEN JOB = 'CLERK' THEN SAL END), 0) AS CLERK,
+          COALESCE(SUM(CASE WHEN JOB = 'MANAGER' THEN SAL END), 0) AS MANAGER,
+          COALESCE(SUM(CASE WHEN JOB = 'PRESIDENT' THEN SAL END), 0) AS PRESIDENT,
+          COALESCE(SUM(CASE WHEN JOB = 'ANALYST' THEN SAL END), 0) AS ANALYST,
+          COALESCE(SUM(CASE WHEN JOB = 'SALESMAN' THEN SAL END), 0) AS SALESMAN,
+          COALESCE(SUM(SAL), 0) AS TOTAL
+      FROM EMP
+      GROUP BY ROLLUP (DEPTNO)
+      ORDER BY DEPTNO;
+
+
+
+      5. emp 테이블을 사용하여 직원들의 급여와 전체 급여의 누적 급여금액이 아래와 같도록 출력하세요.
+         단, 급여를 오름차순으로 정렬해서 출력하세요.
+
+
+      SELECT
+              DEPTNO,
+              ENAME,
+              SAL,
+              (SELECT SUM(SAL) FROM EMP E2 WHERE E2.SAL <= E1.SAL) AS TOTAL
+          FROM EMP E1
+          ORDER BY SAL;
+
+
+      6. fruit 테이블을 아래와 같은 형태로 출력하라.
       
+      SELECT
+              MAX(CASE WHEN NAME = 'apple' THEN PRICE END) AS "Apple",
+              MAX(CASE WHEN NAME = 'grape' THEN PRICE END) AS "Grape",
+              MAX(CASE WHEN NAME = 'orange' THEN PRICE END) AS "Orange"
+            FROM fruit;
+
