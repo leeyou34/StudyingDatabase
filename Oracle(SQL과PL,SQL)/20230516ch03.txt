@@ -782,3 +782,137 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
          select p_code, p_store, p_date, p_qty, p_total,
               SUM(p_total) OVER (PARTITION BY p_code, p_store ORDER BY p_date) "TOTAL"
          FROM panmae;
+
+
+
+        4.13 RATIO_TO_REPORT() 함수를 활용한 판매 비율 구하기
+        panmae 테이블에서 100번 제품의 판매 내역과 각 판매접별로 판매 비중을 구하라
+        
+        예시1:
+        
+        select p_code, SUM(SUM(p_qty)) OVER() "TOTAL_QTY",
+              SUM(SUM(p_total)) OVER () "TOTAL_PRICE", p_store, p_qty, p_total,
+              ROUND((RATIO_TO_REPORT(SUM(p_qty)) OVER()) * 100,2) "qty_%",
+              ROUND((RATIO_TO_REPORT(SUM(p_total)) OVER()) * 100,2) "total_%"
+        FROM panmae
+        WHERE p_code = 100
+        GROUP BY p_code, p_store, p_qty, p_total;
+        
+        
+        4.14 LAG 함수를 활용한 차이 구하기
+        다음 화면은 1000번 판매점의 일자별 판매 내역과 금액 및 전일 판매 수량과 금액 차이를 출력하라
+        
+        예시1:
+        
+        select p_store, p_date, p_code, p_qty,
+               LAG(p_qty,1) OVER(ORDER BY p_date) "D-1 QTY",
+               p_qty - LAG(p_qty, 1) OVER (ORDER BY p_date) "DIFF-QTY",
+               p_total,
+               LAG(p_total, 1) OVER(ORDER BY p_date) "D-1 PRICE",
+               p_total - LAG(p_total, 1) OVER (ORDER BY p_date) "DIFF-PRICE"
+        FROM panmae
+        WHERE p_store = 1000;
+        
+        
+        모든 판매저믈 판매점별로 구분해서 다 출력하고 싶은 경우
+        
+        예시2:
+        
+        SELECT p_store, p_date, p_code, p_qty,
+               LAG(p_qty, 1) OVER (PARTITION BY p_store ORDER BY p_date) "D-1 QTY",
+               p_qty - LAG(p_qty,1) OVER (PARTITION BY p_store ORDER BY p_date) "DIFF-QTY", p_total,
+               LAG(p_total, 1) OVER (PARTITION BY p_store ORDER BY p_date) "D-1 PRICE",
+               p_total - LAG(p_total, 1) OVER (PARTITION BY p_store ORDER BY p_date) "DIFF-PRICE"
+        FROM panmae;
+        
+        
+        
+        
+        
+        연습문제
+        
+        1. emp 테이블을 사용하여 사원 중에서 급여(sal)와 보너스(comm)을 합친 금액이 가장 많은 경우와 가장 적은 경우, 편균 금액을 구하세요. 단, 보너스가 없을 경우는 보너스를 0으로 계산하고 출력 금액은 모두 소수점 첫째 자리까지만 나오게 하세요.
+        
+        
+        
+        select ROUND(MAX(sal + NVL(comm, 0)), 1) AS max_amount,
+               ROUND(MIN(sal + NVL(comm, 0)), 1) AS min_amount,
+               ROUND(AVG(sal + NVL(comm, 0)), 1) AS avg_amount
+        FROM emp;
+        
+        
+        2. student 테이블의 birthday 컬럼을 참조해서 아래와 같이 월별로 생일자 수를 출력하세요.
+        
+        
+        
+        SELECT
+              COUNT(*) AS TOTAL,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 1 THEN 1 END) AS JAN,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 2 THEN 1 END) AS FEB,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 3 THEN 1 END) AS MAR,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 4 THEN 1 END) AS APR,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 5 THEN 1 END) AS MAY,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 6 THEN 1 END) AS JUN,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 7 THEN 1 END) AS JUL,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 8 THEN 1 END) AS AUG,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 9 THEN 1 END) AS SEP,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 10 THEN 1 END) AS OCT,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 11 THEN 1 END) AS NOV,
+              COUNT(CASE WHEN EXTRACT(MONTH FROM birthday) = 12 THEN 1 END) AS DEC
+          FROM student;
+          
+          
+          
+        3. Student 테이블의 tel 컬럼을 참고하여 아래와 같이 지역별 인원수를 출력하세요. 
+        단, 02-SEOUL, 031-GYEONGGI, 051-BUSAN, 052-ULSAN, 053-DAEGU, 055-GYEONGNAM으로 출력하세요.
+        
+        SELECT COUNT(*) TOTAL,
+             COUNT(CASE WHEN tel LIKE '02)%' THEN 1 END) AS SEOUL,
+             COUNT(CASE WHEN tel LIKE '031)%' THEN 1 END) AS GYEONGGI,
+             COUNT(CASE WHEN tel LIKE '051)%' THEN 1 END) AS BUSAN,
+             COUNT(CASE WHEN tel LIKE '052)%' THEN 1 END) AS ULSAN,
+             COUNT(CASE WHEN tel LIKE '053)%' THEN 1 END) AS DAEGU,
+             COUNT(CASE WHEN tel LIKE '055)%' THEN 1 END) AS GYEONGNAM
+        FROM student;
+      
+      
+      
+      
+      4. 먼저 emp 테이블에 아래 두 건의 데이터를 입력한 후 작업하세요.
+         Emp 테이블을 사용하여 아래의 화면과 같이 부서별로 직급별로 급여 합계 결과를 출력하세요.
+         
+         insert into emp (
+                            empno
+                          , deptno
+                          , ename
+                          , sal
+                          )
+         values (
+                    1000
+                  , 10
+                  , 'Tiger'
+                  , 3600
+                );
+                
+       
+       insert into emp (
+                          empno
+                        , deptno
+                        , ename
+                        , sal
+                        )
+       values (
+                  2000
+                , 10
+                , 'Cat'
+                , 3000
+              );
+       
+       COMMIT;
+       
+       
+       
+       
+       set pagesize 50
+       select empno, ename, job, sal From emp;
+      
