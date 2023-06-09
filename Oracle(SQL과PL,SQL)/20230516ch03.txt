@@ -1083,4 +1083,87 @@ select deptno, ename, sal,
 
 
   
+  10번 emp 테이블을 조회하여 아래와 같이 각 직원들의 급여가 해당 부서 합계 금액에서 몇 %의 비중을 차지하는지를 출력하세요.
+  단, 부서 번호를 기준으로 오름차순으로 출력하세요.
+  
+  select deptno, ename, sal,
+           sum(sal) over (partition by deptno) "SUM_DEPT",
+           ROUND(ratio_to_report(SUM(SAL)) over () * 100, 2) "%"
+    from emp
+    group by deptno, ename, sal
+    order by deptno asc;
 
+
+
+
+  11번 loan 테이블을 사용하여 1000번 지점의 대출 내역을 출력하되 대출일자, 대출종목코드, 대출건수, 대출총액 누적대출금액을 아래와 같이 출력하세요.
+  
+  정답:
+  select L_DATE AS 대출일자
+       , L_CODE AS 대출종목코드
+       , L_QTY AS 대출건수
+       , L_TOTAL AS 대출총액
+       , SUM(L_TOTAL) over(order by L_DATE) AS 누적대출금액대출금액
+  from loan
+  where L_STORE=1000
+  order by L_DATE ASC;
+  
+
+12번 loan 테이블을 사용하여 전체 지점의 대출종목코드, 대출지점, 대출일자, 대출건수, 대출액을 대출코드와 대출지점별로 누적 합계를 구하세요.
+
+/**
+예시:
+select L_CODE as 대출종목코드
+         , L_STORE as 대출지점
+         , L_DATE as 대출질자
+         , L_QTY as 대출건수
+         , L_TOTAL as 대출액
+         , SUM(L_TOTAL) over (order by L_DATE) as 누적대출금액
+    from loan
+    group by L_CODE, L_STORE, L_DATE, L_QTY, L_TOTAL
+    order by L_Code, L_STORE, L_DATE asc;
+  **/ 
+    
+  정답:
+    select L_CODE as 대출종목코드
+         , L_STORE as 대출지점
+         , L_DATE as 대출일자
+         , L_QTY as 대출건수
+         , L_TOTAL as 대출액
+         , SUM(L_TOTAL) over (partition by L_CODE, L_STORE order by L_DATE) as 누적대출금액
+    from loan
+    
+    
+    
+    13번 loan 테이블을 조회하여 1000번 지점의 태출 내역을 대출 코드별로 합쳐서 대출일자, 대출구분코드, 대출건수, 대출총액, 코드별 누적대출금액을 아래와 같이 출력하세요.
+    
+    정답:
+    select L_DATE as 대출일자, L_CODE as 대출구분코드, L_QTY as 대출건수, L_TOTAL as 대출총액, SUM(L_TOTAL) over (partition by L_CODE Order by L_TOTAL) as 누적대출금액
+        from loan
+        where L_STORE=1000
+        group by L_CODE, L_STORE, L_DATE, L_QTY, L_TOTAL
+        order by L_CODE, L_TOTAL asc;
+    
+    
+    
+    14번 professor 테이블에서 각 교수들의 급여를 궇고 각 교수의 급여액이 전체 교수의 급여 합계에서 차지하는 비율을 출력하세요.
+    
+    정답:
+    select deptno, name, pay, sum(pay) over () as "TOTAL PAY"
+         , ROUND(ratio_to_report(sum(pay)) over() * 100, 2) as "RATIO_%"
+    from professor
+    GROUP by deptno, name, pay
+    order by pay desc;
+    
+    
+    
+    
+    15번 professor 테이블을 조회하여 학과번호, 교수명, 급여, 학과별 급여 합계를 구하고 각 굣의 급여가 해당 학과별 급여 합계에서 차지하는 비율을 출력하세요.
+    
+    정답:
+        select deptno, name, pay, SUM(pay) over (partition by deptno) as TOTAL_DEPTNO, ROUND(ratio_to_report(sum(pay)) over (partition by deptno) * 100, 2) as "Ratio %"
+        FROM professor
+        GROUP by deptno, name, pay;
+    
+    
+    
