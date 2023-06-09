@@ -932,7 +932,8 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
       하기의 쿼리를 참고 할 것... 참고로 출력 되는 값은 책의 내용과 다르다...ㅠㅠ
 **/
 
-      SELECT
+/**  하기의 쿼리는 사용하지 말 것
+        SELECT
           COALESCE(TO_CHAR(DEPTNO), 'null') AS DEPTNO,
           COALESCE(SUM(CASE WHEN JOB = 'CLERK' THEN SAL END), 0) AS CLERK,
           COALESCE(SUM(CASE WHEN JOB = 'MANAGER' THEN SAL END), 0) AS MANAGER,
@@ -943,6 +944,21 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
       FROM EMP
       GROUP BY ROLLUP (DEPTNO)
       ORDER BY DEPTNO;
+**/
+
+/** 이 쿼리가 정확한 쿼리이니 사용 할 것
+**/
+select deptno,
+       sum(decode(job, 'CLERK', sal, 0)) "CLERK",
+       sum(decode(job, 'MANAGER', sal, 0)) "MANAGER",
+       sum(decode(job, 'PRESIDENT', sal, 0)) "PRESIDENT",
+       sum(decode(job, 'ANALYST', sal, 0)) "ANALYST",
+       sum(decode(job, 'SALESMAN', sal, 0)) "SALESMAN",
+       sum(nvl2(job, sal, 0)) "TOTAL"
+from emp
+group by rollup(deptno)
+order by deptno;
+
 
 
 
@@ -966,4 +982,105 @@ SQL 복수행 함수는 앞에서 살펴본 단일행 함수와 달리 한꺼번
               MAX(CASE WHEN NAME = 'grape' THEN PRICE END) AS "Grape",
               MAX(CASE WHEN NAME = 'orange' THEN PRICE END) AS "Orange"
             FROM fruit;
+
+     -- 예시2
+     select sum(decode(name, 'apple', price)) "APPLE",
+            sum(decode(name, 'grape', price)) "GRAPE",
+            sum(decode(name, 'orange', price)) "ORANGE"
+     from fruit;
+
+
+
+
+
+      7. 
+      
+/** 오답 모음 1      
+ SELECT COUNT(*) AS Total,
+    SUM(CASE WHEN tel LIKE '02)%' THEN 1 ELSE 0 END) AS Seoul,
+    SUM(CASE WHEN tel LIKE '031)%' THEN 1 ELSE 0 END) AS Gyeonggi,
+    SUM(CASE WHEN tel LIKE '051)%' THEN 1 ELSE 0 END) AS Busan,
+    SUM(CASE WHEN tel LIKE '052)%' THEN 1 ELSE 0 END) AS Ulsan,
+    SUM(CASE WHEN tel LIKE '053)%' THEN 1 ELSE 0 END) AS Daegu,
+    SUM(CASE WHEN tel LIKE '055)%' THEN 1 ELSE 0 END) AS Gyeongnam,
+    COUNT(*) * 100 / (SELECT COUNT(*) FROM student) AS Percentage
+FROM student;
+
+
+오답 모음 2
+SELECT
+    CONCAT(COUNT(*), 'EA (100%)') AS TOTAL,
+    CONCAT(SUM(CASE WHEN SUBSTR(Tel, 1, 2) = '02' THEN 1 ELSE 0 END), 'EA (', ROUND(SUM(CASE WHEN SUBSTR(Tel, 1, 2) = '02' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2), '%)') AS SEOUL,
+    CONCAT(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '031' THEN 1 ELSE 0 END), 'EA (', ROUND(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '031' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2), '%)') AS GYEONGGI,
+    CONCAT(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '051' THEN 1 ELSE 0 END), 'EA (', ROUND(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '051' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2), '%)') AS BUSAN,
+    CONCAT(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '052' THEN 1 ELSE 0 END), 'EA (', ROUND(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '052' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2), '%)') AS ULSAN,
+    CONCAT(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '053' THEN 1 ELSE 0 END), 'EA (', ROUND(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '053' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2), '%)') AS DAEGU,
+    CONCAT(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '055' THEN 1 ELSE 0 END), 'EA (', ROUND(SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '055' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2), '%)') AS GYEONGNAM
+FROM student;
+
+오답 모음 3
+SELECT
+    COUNT(*) AS TOTAL,
+    SUM(CASE WHEN SUBSTR(Tel, 1, 3) = '02)' THEN 1 ELSE 0 END) AS SEOUL,
+    SUM(CASE WHEN SUBSTR(Tel, 1, 4) = '031)' THEN 1 ELSE 0 END) AS GYEONGGI,
+    SUM(CASE WHEN SUBSTR(Tel, 1, 4) = '051)' THEN 1 ELSE 0 END) AS BUSAN,
+    SUM(CASE WHEN SUBSTR(Tel, 1, 4) = '052)' THEN 1 ELSE 0 END) AS ULSAN,
+    SUM(CASE WHEN SUBSTR(Tel, 1, 4) = '053)' THEN 1 ELSE 0 END) AS DAEGU,
+    SUM(CASE WHEN SUBSTR(Tel, 1, 4) = '055)' THEN 1 ELSE 0 END) AS GYEONGNAM,
+    COUNT(*) * 100.0 / (SELECT COUNT(*) FROM student) AS Percentage
+FROM student;
+
+
+
+정답에 근접한 쿼리  1
+
+SELECT COUNT(*)||'EA'||' ('||round(count(tel)/count(tel)*100,0)||'%)' AS TOTAL,
+                 COUNT(CASE WHEN tel LIKE '02)%' THEN 1 END)||'EA'||' ('||round(count(CASE WHEN tel LIKE '02)%' THEN 1 END)/count(tel)*100,0)||'%)' AS SEOUL,
+                 COUNT(CASE WHEN tel LIKE '031)%' THEN 1 END), 'EA') AS GYEONGGI,
+                 COUNT(CASE WHEN tel LIKE '051)%' THEN 1 END), 'EA') AS BUSAN,
+                 COUNT(CASE WHEN tel LIKE '052)%' THEN 1 END), 'EA') AS ULSAN,
+                 COUNT(CASE WHEN tel LIKE '053)%' THEN 1 END), 'EA') AS DAEGU,
+                 COUNT(CASE WHEN tel LIKE '055)%' THEN 1 END), 'EA') AS GYEONGNAM
+            FROM student;
+       **/     
+  정답 쿼리
+ SELECT COUNT(*)||'EA'||' ('||ROUND(COUNT(*) * 100 / COUNT(tel), 0)||'%)' AS TOTAL,
+        COUNT(CASE WHEN tel LIKE '02)%' THEN 1 END)||'EA'||' ('||ROUND(COUNT(CASE WHEN tel LIKE '02)%' THEN 1 END) * 100 / COUNT(tel), 0)||'%)' AS SEOUL,
+        COUNT(CASE WHEN tel LIKE '031)%' THEN 1 END)||'EA'||' ('||ROUND(COUNT(CASE WHEN tel LIKE '031)%' THEN 1 END) * 100 / COUNT(tel), 0)||'%)' AS GYEONGGI,
+        COUNT(CASE WHEN tel LIKE '051)%' THEN 1 END)||'EA'||' ('||ROUND(COUNT(CASE WHEN tel LIKE '051)%' THEN 1 END) * 100 / COUNT(tel), 0)||'%)' AS BUSAN,
+        COUNT(CASE WHEN tel LIKE '052)%' THEN 1 END)||'EA'||' ('||ROUND(COUNT(CASE WHEN tel LIKE '052)%' THEN 1 END) * 100 / COUNT(tel), 0)||'%)' AS ULSAN,
+        COUNT(CASE WHEN tel LIKE '053)%' THEN 1 END)||'EA'||' ('||ROUND(COUNT(CASE WHEN tel LIKE '053)%' THEN 1 END) * 100 / COUNT(tel), 0)||'%)' AS DAEGU,
+        COUNT(CASE WHEN tel LIKE '055)%' THEN 1 END)||'EA'||' ('||ROUND(COUNT(CASE WHEN tel LIKE '055)%' THEN 1 END) * 100 / COUNT(tel), 0)||'%)' AS GYEONGNAM
+FROM student;
+
+
+8. emp 테이블을 사용하여 아래와 같이 부서별로 급여 누적 합계가 나오도록 출력하세요. 단, 부서 번호로 오름차순 출력하세요.
+
+연습1
+select deptno, ename, sal
+from emp
+order by deptno, sal asc;
+
+
+
+정답.
+select deptno, ename, sal,
+       sum(sal) over(partition by deptno order by sal) as total
+from emp
+order by deptno, sal asc;
+
+
+
+9번 emp 테이블을 사용하여, 아래와 같이 각 사원의 급여액이 전체 직원 급여 총액에서 몇 %의 비율을 차지하는지 출력하세요.
+단, 급여 비중이 높은 사람이 먼저 출력되도록 하세요.
+
+select deptno, ename, sal,
+              sum(sal) over () "TOTAL_SAL",
+              ROUND(ratio_to_report(sum(sal)) over() * 100, 2) "%"
+   from emp
+   group by deptno, ename, sal
+   order by sal desc;
+
+
+  
 
