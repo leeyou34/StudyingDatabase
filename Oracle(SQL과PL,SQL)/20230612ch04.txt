@@ -1,0 +1,259 @@
+4장 JOIN을 배웁니다.
+
+관계형 데이터베이스에서 가장 핵심적인 기능인 join에 대해 배운다.
+
+
+
+예시
+
+emp 테이블에서 ename과 dept 테이블에서 dname 만 가져와서 새로운 결과를 만들어내라.
+
+
+      문법:
+      select a.col1, b.col1
+          from table1 a, table2 b
+          where a.col2 = b.col2;
+
+
+      정답
+      select a.ename, b.dname
+      from emp a, dept b
+      where a.deptno = b.deptno;
+
+
+하지만 ANSI JOIN 문법이 있으며. Join 문법 안에 inner 라는 단어가 join 앞에 올 수 있다.
+Inner 라는 뜻은 조인에 참여하는 모든 테이블에 존재하는 데이터만 출력하라는 의미이며 기본 값이다.
+
+
+      ANSI 문법
+      select a.col1, b.col1
+      from table1 a INNER JOIN table2 b
+      on a.col2 = b.col2;
+      
+      
+      
+      
+1. Cartesian Product(카티션 곱)
+   JOIN 에서 가장 중요한 부분은 조인 조건을 지정해 주는 부분이다.
+   예를 들어 emp테이블과 dept 테이블에 가서 서로 관련 있는 데이터를 가져올 때 이 조인 조건을 보고 가져오는데.
+   만약 조건을 잘못 주게 되면 틀린 데이터를 가져오거나 데이터를 가져오지 못하는 경우도 발생 할 수 있다.
+   
+   특히 조인 조건절을 적지 않게 되면 해당 테이블에 대한 모든 데이터를 전부 가져오는 현상이 생기는데 이를 카티션 곱이라 부른다.
+   주로 join 쿼리 중에 where 절에 기술하는 join 조건이 잘못 기술 되어있거나 아예 없을 경우 발생하는 현상이다.
+   
+   
+   테스트를 위해 테이블 3개 생성
+   
+   step1: 테스트용 테이블 cat_a, cat_b, cat_c를 생성하고 데이터를 입력한다.
+   
+   CREATE TABLE cat_a (no number, name VARCHAR2(1)); # 첫 번째 테이블 생성
+   
+   INSERT INTO cat_a VALUES (1,'A');
+   
+   INSERT INTO cat_a VALUES (2,'B');
+   
+   CREATE TABLE cat_b (no number, name VARCHAR2(1)); # 두 번째 테이블 생성
+   
+   INSERT INTO cat_b VALUES (1,'C');
+   
+   INSERT INTO cat_b VALUES (2,'D');
+   
+   CREATE TABLE cat_c (no number, name VARCHAR2(1)); # 세 번째 테이블 생성
+   
+   INSERT INTO cat_c VALUES (1, 'E');
+   
+   INSERT INTO cat_c VALUES (1, 'F');
+   
+   commit;
+   
+   
+   step2: 생성된 테이블을 확인한다.
+   
+   COL name FOR a5;
+   
+   SELECT * FROM cat_a;
+   
+   SELECT * FROM cat_b;
+   
+   SELECT * FROM cat_c;
+   
+   
+   
+   step3: 2개의 테이블로 정상적인 조인을 수행한다.
+   
+   select a.name, b.name
+   from cat_a a, cat_b b
+   where a.no = b.no;
+   
+   
+   
+   step4: 2개의 테이블로 카티션 곱을 생성한다.
+   
+   select a.name, b.name
+   from cat_a a, cat_b b
+   ;
+   
+   step5: 3개의 테이블로 정상적인 조인을 수행한다.
+   
+   select a.name, b.name, c.name
+   from cat_a a, cat_b b, cat_c c
+   where a.no= b.no 
+   and a.no = c.no;
+   
+   
+   step6: 3개의 테이블을 조회하되, 조인 조건절은 2개의 테이블의 조건만으로 카티션 곱을 생성
+   
+   select a.name, b.name, c.name
+   from cat_a a, cat_b b, cat_c c
+   where a.no = b.no;
+   
+   
+   
+   카티션 곱을 사용하는 이유가 크게 두가지가 있다.
+   첫번째: 데이터를 복제하여 원본 테이블을 반복하여 읽는 것을 피하기 위함
+   두번째: 실수로 조인 조건 컬럼 중 일부를 빠뜨린 경우
+   
+   
+   
+   데이터 복제 예시
+   step1: 부서 번호가 10번인 사원들의 정보를 조회
+   
+   select empno, ename, job, sal
+   from emp
+   where deptno=10;
+   
+   
+   step2: 임의의 3건을 추출한다.
+   
+   select level c1 from dual connect by level <=3;
+   
+   
+   step3: 카티션 곱을 사용하여 부서 번호 10번인 집합 3세트를 만든다.
+   
+   select * from
+   (
+    select empno, ename, job, sal
+    from emp
+    where deptno =10
+   ), (select level c1 from dual connect by level <=3);
+   
+   
+   
+   
+   
+   참고
+   
+   break on은 sqlplus 툴의 옵션으로 중복된 값은 한 번만 보여 주는 기능이다.
+   
+   break ON empno;
+   
+   
+   
+   select empno,
+          case when c1 = 1 then 'ename'
+               when c1 = 2 then 'job'
+               when c1 = 3 then 'hiredate'
+          end title,
+          case when c1 = 1 then ename
+               when c1 = 2 then job
+               when c1 = 3 then hiredate
+          end contents
+           from
+   (
+    select empno, ename, job, sal, to_char(hiredate, 'YYYY/MM/DD') hiredate
+    from emp
+    where deptno =10
+   ), (select level c1 from dual connect by level <=3)
+   order by 1, 2;
+   
+   
+   만약 emp 테이블이 1만 건이고 dept 테이블이 100건일 때 카티션 곱으로 100만 건이 출력된다... 실수로 조인 조건이 빠질 경우
+   100만 건을 애플리케이션으로 보내고 추출된 건수에 대한 사이즈 제약을 하지 않으면 애플리케이션이 메모리 부족으로 다운 될 수 있다.
+   쿼리가 복작하고 조인 컬럼 개수가 많을 경우 이런 실수가 발생하니 조심해야한다.
+   
+   
+   
+   
+ 2. EQUI join(등가 조인)
+    이 조인 방법은 가장 많이 사용되는 조인으로 선행 테이블에서 데이터를 가져온 후 조인 조건절을 검사해서 동일한 조건을 가진 데이터를 후행 테이블에서
+    꺼내오는 방법이다.
+    
+    
+    사용 예1: emp 테이블과 dept 테이블을 조회하여 아래와 같이 출력하라
+    
+    select empno, ename, dname
+    from emp e, dept d
+    where e.deptno = d.deptno;
+    
+    
+    [ORACLE JOIN 문법] 예시:
+    
+    select empno, ename, dname
+    from emp e, dept d
+    where e.deptno = d.deptno;
+    
+    
+    [ANSI JOIN 문법] 예시:
+    
+    select empno, ename, dname
+    from emp e JOIN dept d
+    ON e.deptno = d.deptno; 
+ 
+   
+   
+    사용 예2: 학생 테이블(student)와 교수 테이블(professor)을 조인하여 학생의 이름과 지도교수 이름을 출력하라.
+    
+    [ORACLE JOIN 문법]
+    
+    select s.name AS STU_NAME, p.name AS PRO_NAME
+    from student s, professor p
+    where s.profno = p.profno;
+  
+  
+    [ANSI JOIN 문법]
+    
+    select s.name AS STU_NAME, p.name AS PRO_NAME
+    from student s JOIN professor p
+    ON s.profno = p.profno;
+    
+    
+    -> 해당 쿼리문으로는 20개가 출력되어야할 레코드가 15개만 출력되는데 그 이유는 학생 5명이 지도교수가 결정이 안되어서 결과에서 빠진 상태이다.
+       이렇게 한쪽에 없는 데이터를 가진 값까지 다 보고 싶으면 뒷부분에서 배우는 outer join을 활용하면 된다.
+       
+    
+    
+    사용 예3: 학생 테이블(student)와 학과 테이블(department), 교수 테이블(professor)을 JOIN하여 학생의 이름과 학생의 학과 이름, 학생의 지도교수 이름을 출력하라.
+    
+    
+    [ORACLE JOIN 문법]
+    select s.name AS STU_NAME, d.dname AS DEPT_name, p.name AS PROF_NAME
+    from student s, department d, professor p
+    where s.deptno1 = d.deptno
+    AND s.profno = p.profno;
+    
+    
+    [ANSI JOIN 문법]
+    select s.name AS stu_name, d.dname AS DEPT_name, P.name AS PROF_NAME
+    FROM student s JOIN department d
+    ON s.deptno1 = d.deptno
+    JOIN professor p
+    ON s.profno = p.profno;
+    
+    
+    
+    사용 예4: student 테이블을 조회하여 1전공(deptno1)이 101번인 학생들의 이름과 각 학생들의 지도교슈 이름을 출력하세요.
+    
+    [ORACLE JOIN 문법]
+    
+    select s.name as STU_NAME, p.name "PROF_NAME"
+    from student s, professor p
+    where s.profno = p.profno
+    and s.deptno1 = 101;
+    
+    
+    [ANSI JOIN 문법]
+    
+    select s.name AS STU_NAME, p.name AS PROF_NAME
+    from student s JOIN professor p
+    ON s.profno = p.profno
+    WHERE s.deptno1 = 101;
