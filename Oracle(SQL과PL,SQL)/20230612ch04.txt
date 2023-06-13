@@ -428,27 +428,158 @@ Inner 라는 뜻은 조인에 참여하는 모든 테이블에 존재하는 데�
       
       
       
-    Student
-          STUDNO NAME  ID                                            GRADE
----------- ----- ---------------------------------------- ----------
-JUMIN                      BIRTHDAY TEL
-     HEIGHT
--------------------------- -------- ------------------------------ ----------
-    WEIGHT    DEPTNO1    DEPTNO2     PROFNO
-      
-      
-      
-    Department
-        DEPTNO
-----------
-DNAME
---------------------------------------------------------------------------------
-      PART BUILD
----------- ------------------------------------------------------------
+                Student
+                      STUDNO NAME  ID                                            GRADE
+            ---------- ----- ---------------------------------------- ----------
+            JUMIN                      BIRTHDAY TEL
+                 HEIGHT
+            -------------------------- -------- ------------------------------ ----------
+                WEIGHT    DEPTNO1    DEPTNO2     PROFNO
 
 
 
- 정답
-  select s.name as STU_NAME, s.deptno1, d.DNAME
-  from student s, department d
-  where s.deptno1 = d.deptno;
+                Department
+                    DEPTNO
+            ----------
+            DNAME
+            --------------------------------------------------------------------------------
+                  PART BUILD
+            ---------- ------------------------------------------------------------
+
+
+
+  정답
+   select s.name as STU_NAME, s.deptno1, d.DNAME
+   from student s, department d
+   where s.deptno1 = d.deptno;
+
+
+ 
+ 2. emp2 테이블과 p_grade 테이블을 조회하여 현재 직급이 있는 사원의 이름과 직급, 현재 연봉, 해당 직급의 연봉의 하한 금액과 상한 금액을 아래 결과 화면과 같이 출력하시요.
+ 
+            emp2 table
+                 EMPNO NAME  BIRTHDAY DEPTNO
+                  ---------- ----- -------- ------------
+                  EMP_TYPE
+                  ------------------------------------------------------------
+                  TEL
+                  ------------------------------
+                  HOBBY
+                    PAY
+                  ------------------------------------------------------------ ----------
+                  POSITION                                                         PEMPNO
+                  ------------------------------------------------------------ ----------
+                  
+                  
+             
+            p_grade table
+                  POSITION
+                  S_AGE
+                  ------------------------------------------------------------ ----------
+                       E_AGE     S_YEAR     E_YEAR      S_PAY      E_PAY
+                  ---------- ---------- ---------- ---------- ----------
+                  
+            
+            정답:
+            
+            SELECT e.name AS name, e.position AS position, e.PAY as PAY, p.S_PAY as LOW_PAY, p.E_PAY as HIGH_PAY
+            from emp2 e, p_grade p
+            where e.position = p.position;
+            
+            [ANSI JOIN 문 정답]
+            
+            SELECT e.name, e.position, e.PAY, p.S_PAY, p.E_PAY
+            FROM emp2 e
+            INNER JOIN p_grade p ON e.position = p.position;
+
+            
+            
+            
+            3. EMP2 테이블과 p_grade 테이블을 조회하여 사원들의 이름과 나이, 현재 직급, 예상 직급을 출력하세요.
+            예상 직급은 나이로 계산하여 해당 나이가 받아야 하는 직급을 의미합니다. 나이는 오늘 (sysdate)를 기준으로 하되 trunc 소수점 이하는 절삭해서 계산하세요.
+            정답:           
+            SELECT e.name, TRUNC((SYSDATE - e.birthday) / 365) AS age, e.position AS current_position, p.position AS expected_position
+            FROM emp2 e
+            INNER JOIN p_grade p ON TRUNC((SYSDATE - e.birthday) / 365) BETWEEN p.S_AGE AND p.E_AGE;
+         
+                 
+                 
+                 
+            4. customer 테이블과 gift 테이블을 Join하여 고객이 자기 포인트보다 낮은 포인트의 상품 중 한가지를 선택할 수 있다고 할 때
+               notebook을 선택할 수 있는 고객명과 포인트, 상품명을 출력하세요.
+               
+               
+               
+               customer table
+               
+                  GNO GNAME
+                  ---------- ------------------------------------------------------------
+                  JUMIN                           POINT
+                  -------------------------- ----------
+ 
+
+
+              gift table
+              
+                  GNO GNAME
+                  ---------- ------------------------------------------------------------
+                     G_START      G_END
+                  ---------- ----------
+                  
+              
+              정답:
+              select c.GNAME as CUST_NAME, c.POINT as POINT, g.GNAME as GIFT_NAME
+              from customer c, gift g
+              where c.point >= g.G_START 
+              AND g.gname = 'Notebook';
+              
+              
+              
+              
+              
+              5. professor 테이블에서 교수의 번호, 교수 이름, 입사일, 자신보다 입사일 빠른 사람 인원수를 출력하세요.
+                 단, 자신보다 입사일이 빠른 사람 수를 오름차순으로 출력하세요.(ORACLE JOIN 구문과 ANSI JOIN 구문으로 각각 SQL을 작성하라)
+                 
+                 
+                 ORACLE 정답:
+                 
+                 SELECT p1.profno as PROFNO, p1.name as NAME, p1.hiredate as HIREDATE,
+                         COUNT(p2.profno) AS Count
+                  FROM professor p1, professor p2
+                  WHERE p1.hiredate > p2.hiredate
+                  GROUP BY p1.profno, p1.name, p1.hiredate
+                  ORDER BY Count ASC;
+
+
+                  ANSI 정답:
+                  
+                  SELECT p1.profno as PROFNO, p1.name as NAME, p1.hiredate as HIREDATE,
+                         COUNT(p2.profno) AS Count
+                  FROM professor p1 JOIN professor p2
+                  ON p1.hiredate > p2.hiredate
+                  GROUP BY p1.profno, p1.name, p1.hiredate
+                  ORDER BY Count ASC;
+                  
+                  
+               
+               6. emp 테이블에서 사원번호, 사원이름, 입사일, 자신보다 먼저 입사한 사람 인원수를 출력하세요.
+                  단, 자신보다 입사일이 빠른 사람수를 오름차순으로 출력하세요.
+                  
+                  
+                  ORACLE 정답:
+                  select e1.empno, e1.ename, e1.hiredate,
+                        count(e2.empno) as count
+                  from emp e1, emp e2
+                  where e1.hiredate > e2.hiredate
+                  GROUP BY e1.empno, e1.ename, e1.hiredate
+                  ORDER BY Count ASC;
+                  
+                  
+                  
+                  ANSI 정답:
+                  SELECT e1.empno, e1.ename, e1.hiredate,
+                         COUNT(e2.empno) AS Count
+                  FROM emp e1
+                  JOIN emp e2 ON e1.hiredate > e2.hiredate
+                  GROUP BY e1.empno, e1.ename, e1.hiredate
+                  ORDER BY Count ASC;
