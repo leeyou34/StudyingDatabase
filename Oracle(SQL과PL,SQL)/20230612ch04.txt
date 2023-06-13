@@ -257,3 +257,198 @@ Inner 라는 뜻은 조인에 참여하는 모든 테이블에 존재하는 데�
     from student s JOIN professor p
     ON s.profno = p.profno
     WHERE s.deptno1 = 101;
+
+
+
+3. Non-Equi Join(비등가 조인)
+
+   같은 조건이 아닌 크거나 작거나 하는 경우의 조건에도 조회가 필요할 경우 Non-Equi Join을 사용한다.
+   
+   예시1: customer 테이블과 gift 테이블을 Join하여 고객별로 마일리지 포인트를 조회한 후 해당 마일리지 점수로 받을 수 있는 상품을 조회하여 고개그이 이름과 받을 수 있는 상품 명을 아래와 같이 출력하세요.
+   
+   
+   [ORACLE JOIN 구문]
+   
+   select c.gname as CUST_NAME, TO_CHAR(c.point, '999,999') as POINT, g.gname as GIFT
+   from customer c, gift g
+   where c.point BETWEEN g.g_start AND g.g_end;
+   
+   
+   [ANSI JOIN 구문]
+   
+   select c.gname "CUST_NAME", TO_CHAR(c.point, '999,999') "Point", g.gname "GIFT"
+   from cusotmer c JOIN gift g
+   ON c.point BETWEEN g.g_Start AND g.g_end;
+   
+   
+   oracle과 ansi 조인 구문에서 between을 썼지만 비교 연산자를 사용하는 것이 성능에는 더 좋다.
+   
+   
+   ansi join 구문 예시:
+   
+   select c.gname as CUST_NAME, TO_CHAR(c.point, '999,999') as Point, g.gname as GIFT
+   from  customer c Join gift g
+   ON c.point >= g.g_start
+   AND c.point <= g.g_end;
+   
+   
+   
+   사용예2: Student 테이블과 score 테이블, hakjum 테이블을 조회하여 학생들의 이름과 점수와 학점을 출력하세요.
+   
+   [ORACLE JOIN 구문]
+   
+   SELECT s.name "STU_NAME", o.total "SCORE", h.grade "CREDIT"
+   FROM student s, score o, hakjum h
+   WHERE s.studno = o.studno
+   AND o.total >= h.min_point
+   AND o.total <= h.max_point;
+   
+   
+   [ANSI JOIN 구문]
+   
+   SELECT s.name "STU_NAME", o.total "SCORE", h.grade "CREDIT"
+   FROM student s JOIN score o
+   ON s.studno = o.studno
+   JOIN hakjum h
+   ON o.total >= h.min_point
+   AND o.total <= h.max_point;
+   
+   
+   
+   마지막으로 equi join, non-equi join의 공통점은 조회하려는 데이터들이 join 에 참여하는 모든 테이블에 데이터가 존재하는 경우에 결괏 값을 출력
+   그래서 INNER JOIN이라고 한다.
+   
+   
+   
+   
+   4. OUTER JOIN(아우터 조인)
+   
+   Inner 조인과 반대로 한쪽 테이블에는 데이터가 있고 한쪽 테이블에 없는 경우에 데이터가 있는 쪽 테이블의 내용을 전부 출력하게 하는 방법이다.
+   모든 데이터를 출력할 수 있어 좋을 수 있으나 DB 성능에 악 영향을 줄 수 있기에 며심하고 사용 여부에 신중해야한다.
+   
+   
+   사용 예1: student 테이블과 professor 테이블을 Join하여 학생 이름과 지도교수 이름을 출력하세요. 단, 지도교수가 결정되지 않은 학생의 명단도 함께 출력하세요.
+   
+   [Oracle Outer Join 문법]
+   
+   select s.name "stu_name", p.name "prof_name"
+   from student s, professor p
+   where s.profno = p.profno(+);
+   
+   
+   [ANSI OUTER Join 문법]
+   
+   SELECT s.name as STU_NAME, p.name as PROF_name
+   from student s LEFT OUTER JOIN professor p
+   ON s.profno=p.profno;
+   
+   
+   
+   사용 예2: student 테이블과 professor 테이블을 Join 하여 학생 이름과 지도교수 이름을 출력하세요. 단, 지도학생이 결정되지 않은 교수의 명단도 함께 출력하세요.
+   
+   [ORACLE OUTER JOIN 문법]
+   
+   SELECT s.name "STU_NAME", p.name "PROF_NAME"
+   FROM student s, professor p
+   WHERE s.profno(+) = p.profno;
+   
+   [ANSI OUTER JOIN 문법]
+   
+   select s.name "STU_NAME", p.name "PROF_NAME"
+   FROM student s RIGHT OUTER JOIN professor p
+   ON s.profno = p.profno;
+   
+   
+   
+   사용 예3: student 테이블과 professor 테이블을 Join하여 학생 이름과 지도교수 이름을 출력하세요. 단, 지도학생이 결정 안 된 교수 명단과 지도교수가 결정 안 된 학생 명단을 한꺼번에 출력하세요.
+   
+   [ORACLE OUTER JOIN 문]
+   
+   SELECT s.name "STU_NAME", p.name "PROF_NAME"
+   from student s, professor p
+   where s.profno(+) = p.profno
+   UNION
+   SELECT s.name "STU_NAME", p.name "PROF_NAME"
+   FROM student s, professor p
+   where s.profno = p.profno(+)
+   
+   
+   [ANSI FULL OUTER JOIN 문법]
+   
+   select s.name "STU_NAME", p.name "PROF_NAME"
+   from student s FULL OUTER JOIN professor p
+   ON s.profno = p.profno;
+   
+   
+   
+   
+   ORACLE OUTER JOIN 주의사항!
+   
+   오라클 아우터 조인은 WHERE 절의 아우터 조인이 되는 컬럼들에 대해서는 전부 아우터 조인 연산자(+)를 붙여야 합니다. 만약, 하나라도 빠진다면 결과는 일반 조인과 동일 하게 되어 원하지 않는 데이터를 추출하게 됩니다.
+   
+   select d.deptno, d.dname, d.loc, e.empno, e.ename, e.sal
+   from dept d, emp e
+   where d.deptno = e.deptno(+)
+   and e.deptno(+) = 20
+   order by 1
+   ;
+   
+   
+   ANSI OUTER JOIN 주의사항!
+   
+   ON 절과 WHERE 절의 의미를 반드시 확인해야 합니다.
+   
+   
+   
+   5. SELF JOIN
+   
+   원하는 데이터가 하나의 테이블에 다 들어 있는 경우
+   
+   [Oracle JOin 문법]
+   
+   select e1.ename as ENAME, e2.ename as MGR_ENAME
+   from emp e1, emp e2
+   where e1.mgr = e2.empno;
+   
+   
+   [ANSI JOIN 문법]
+   
+   select e1.ename as ENAME, e2.ename AS MGR_ENAME
+   from emp e1 join emp e2
+   on e1.mgr = e2.empno;
+   
+   
+   
+  
+  
+  
+   연습문제
+   1. 학생 테이블(student)과 학과 테이블(department)을 사용하여 학생이름, 1전공 학과 번호(deptno1),
+      1전공 학과 이름을 출력하세요(ANSI JOIN 문법과 ORACLE Join 문법으로 각각 SQL을 작성하세요).
+      
+      
+      
+    Student
+          STUDNO NAME  ID                                            GRADE
+---------- ----- ---------------------------------------- ----------
+JUMIN                      BIRTHDAY TEL
+     HEIGHT
+-------------------------- -------- ------------------------------ ----------
+    WEIGHT    DEPTNO1    DEPTNO2     PROFNO
+      
+      
+      
+    Department
+        DEPTNO
+----------
+DNAME
+--------------------------------------------------------------------------------
+      PART BUILD
+---------- ------------------------------------------------------------
+
+
+
+ 정답
+  select s.name as STU_NAME, s.deptno1, d.DNAME
+  from student s, department d
+  where s.deptno1 = d.deptno;
