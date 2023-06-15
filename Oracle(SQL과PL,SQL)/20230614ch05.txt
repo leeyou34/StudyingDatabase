@@ -126,3 +126,367 @@ FROM dept2;
 
 
 
+
+2. ALTER 명령
+
+alter 명령어는 만들어져 있는 오브젝트를 변경하는 명령어이다.
+
+
+
+2.1 새로운 컬럼 추가하기
+
+create table dept6
+as
+ select dcode, dname
+ from dept2
+ where dcode IN(1000,1001,1002);
+ 
+ 
+select from dept6;
+
+
+
+
+Alter table dept6
+add (location varchar2(10));
+
+-> 위 예에서 추가되는 컬럼에는 모두 기본 값으로 NULL 값이 입력되었다.
+
+
+
+ALTER TABLE dept6
+ADD (location2 VARCHAR2(10) DEFAULT 'SEOUL');
+
+
+select * from dept6;
+
+
+
+2.2 테이블의 컬럼 이름 변경하기
+
+ALTER TABLE dept6 RENAME COLUMN location2 To loc;
+
+RENAME dept6 TO dept7;
+
+
+
+
+2.3 컬럼의 데이터 크기 변경하기
+
+DESC dept7;
+
+ALTER TABLE dept7
+modify(loc VARCHAR2(20));
+
+
+DESC dept7;
+
+
+
+
+2.4 컬럼 삭제하기
+
+Alter table dept7 DROP column loc;
+
+alter table dept drop column loc CASCADE constraints;
+
+
+
+
+
+3. TRUNCATE 명령
+Truncate 명령은 테이블의 데이터를 전부 삭제하고 사용하고 있던 공간을 반납하는 명령어이다.
+
+사용예: dept7 테이블의 모든 데이터를 TRUNcate 명령어로 삭제하세요.
+
+TRUNCATE TABLE dept7;
+
+
+
+
+4. DROP 명령
+   이 명령어는 테이블 자체를 삭제하는 명령어입니다.
+   
+   DROP TABLE dept7;
+
+
+   
+
+5. DELETE, TRUNCATE, DROP 명령어의 차이점 비교
+   3가지 명령어 모두 삭제하는 명령어이다.
+   
+   DELETE는 테이블 컬럼에 있는 레코드를 삭제한다.
+   TRUNCATE는 테이블의 컬럼과 내용을 삭제한다.
+   DROP 은 테이블 전체를 삭제한다.
+   
+   
+   
+   
+6. 추가로 알아야 할 기능 소개
+ 
+6.1 읽기 전용 테이블로 변경하기 (11g 부터 추가)
+
+create table t_readonly
+( no number,
+  name varchar2(10) );
+  
+  
+insert into t_readonly
+values (1, 'AAA');
+
+
+commit;
+
+select * from t_readonly;
+
+alter table t_readonly read only;  // <- 읽기 전용으로 변경합니다.
+
+
+
+- 읽기 전용으로 변경된 테이블에 데이터 입력 시도함
+
+insert into t_readonly
+values (2, 'BBB');
+
+insert into t_read
+
+
+- 읽기 전용으로 변경된 테이블에 컬럼 추가 시도함
+
+alter table t_readonly
+add (tel number default 111);
+
+
+- 읽기 전용인 테이블을 다시 읽기/쓰기 모드로 변경함
+
+ALTER TABLE t_readonly read write;
+
+
+- 읽기 전용인 테이블은 읽기 전용 상태일 떄 아래의 명령으로 삭제 가능함.
+
+DROP table t_readonly;
+
+
+
+6.2 가상 컬럼 테이블 사용하기 (11g 부터 추가된 기능)
+
+   step1 xxxx 가상 컬럼을 가지는 vt1 테이블을 생성합니다.
+
+   create table vt1
+   ( col1 number,
+     col2 number,
+     col3 number generated always as (col1 + col2)
+   );
+
+
+   step2 vt1 테이블에 데이터를 입력합니다.
+   
+   INSERT INTO vt1 VALUES (1,2,3);
+   
+   INSERT INTO vt1 (col1, col2) VALUES (1,2);
+   
+   
+   
+   step3 입력된 데이터를 조회합니다.
+   
+   INSERT INTO vt1 (col1, col2) VALUES (1,2);
+   
+   SELECT * FROM vt1;
+
+
+
+   step4 기존 값을 변경한 후 가상 컬럼에 반영되는지 확인
+   
+   update vt1 set col1=5;
+   
+   select * from vt1;
+   
+   
+   
+   step5 새로운 가상 컬럼을 추가한다.
+   
+   ALTER TABLE vt1
+   add (col4 GENERATED ALWAYS as ((col1*12)+col2));
+   
+   
+   select * from vt1;
+   
+   
+   
+   step6 테이블에서 가상 컬럼 내역을 조회합니다.
+   
+   set line 200
+   col column_ame FOR a10
+   col data_type FOR a10
+   col data_default FOR a25
+   
+   select column_name,
+          data_type,
+          data_default
+   from user_tab_columns
+   where table_name = 'VT1'
+   ORDER by column_id;
+   
+   
+   step7 조건절을 활용한 가상 컬럼 생성하기
+   
+   CREATE TABLE sales10
+   ( no  NUMBER,
+   pcode CHAR(4),
+   pdate CHAR(8),
+   pqty  NUMBER,
+   pbungi NUMBER(1)
+   GENERATED ALWAYS AS
+      (
+       CASE
+         WHEN SUBSTR(pdate, 5, 2) IN ('01', '02', '03') THEN 1
+         WHEN SUBSTR(pdate, 5, 2) IN ('04', '05', '06') THEN 2
+         WHEN SUBSTR(pdate, 5, 2) IN ('07', '08', '09') THEN 3
+         ELSE 4
+    END ) virtual );
+    
+    
+    INSERT INTO sales10 (no, pcode, pdate, pqty)
+    VALUES (1, '100', '20110112', 10);
+    
+    
+    INSERT INTO sales10 (no, pcode, pdate, pqty)
+    VALUES (2, '100', '20110505', 20);
+    
+    
+    INSERT INTO sales10 (no, pcode, pdate, pqty)
+    VALUES (3, '100', '20110812', 30);
+    
+    
+    INSERT INTO sales10 (no, pcode, pdate, pqty)
+    VALUES (4, '100', '20111024', 40);
+   
+   
+    COMMIT;
+    
+    
+    SELECT * FROM sales10;
+    
+    
+    
+    7. DATA DICTIONARY(데이터 딕셔너리)
+    
+    오라클은 데이터베이스를 운영하기 위한 정보들을 모두 특정한 테이블에 모아두고 관리한다.
+    그 테이블을 DATA dictionary라 한다.
+    
+    이 딕셔너리에는 아래와 같은 주요 정보들이 저장된다.
+    
+    - 오라클 데이터베이스의 메모리 구조와 파일에 대한 구조 정보
+    - 각 오브젝트들이 사용하고 있는 공간의 정보
+    - 제약 조건 정보
+    - 사용자에 대한 정보
+    - 권한이나 프로파일, 롤에 대한 정보
+    - 감사(AUDIT)에 대한 정보
+    
+    
+    오라클은 이 딕셔너리를 Base Table과 Data Dictionay View로 나누어 두고 Base Table은 DBA라 할지라도 접근을 못하게 막는다.
+    
+    
+    * 연습용 테이블 static_table을 생성하고 데이터를 입력한다.
+    
+    CREATE TABLE st_table
+    (no number);
+    
+    
+    BEGIN
+      FOR i IN 1..1000 LOOP
+            INSERT INTO st_table VALUES (i);
+         END LOOP;
+      COMMIT;
+    END;
+    /
+    
+    
+    
+    
+    * 데이터 딕셔너리를 조회하여 해당 테이블에 데이터가 몇 건 있는지 확인합니다.
+    
+    select count(*) from st_table;
+    
+    select num_rows, blocks from user_tables where table_name='st_table';
+    
+    -> 결과는 1000건의 데이터와 5개의 블록을 쓰고 있다.
+    
+    
+    
+    
+    
+    
+    연습문제
+    1. 아래와 같은 구조의 일반 테이블을 생성하세요.
+    new_emp 테이블
+    
+    create table new_emp
+    ( no number(5)
+    , name varchar2(20)
+    , hiredate date
+    , bonus number(6,2));
+    
+    
+    
+    
+    2.1번 문제에서 생성한 new_emp 테이블에서 no, name, hiredate 컬럼만 가져와서 아래 그림과 같이 new_emp2 테이블을 생성하는 쿼리를 쓰세요.
+    
+    create table new_emp2
+    AS
+      SELECT no, name, hiredate from new_emp;
+      
+   
+   3. 위 2번 문제에서 생성한 new_emp2 테이블과 동일한 구조의 테이블을 new_emp3 이름으로 생성하되 테이블 구조만 가져오고 데이터는 가져오지 않도록 하는 쿼리를 써라
+   
+   create table new_emp3
+   AS
+     select * from new_emp2
+     where 1 =2;
+     
+     
+   
+   4. 위 2번 문제에서 생성한 new_emp2 테이블에 DATE 타입을 가진 BIRTHDAY 컬럼을 추가하는 쿼리를 쓰세요. 단, 해당 컬럼이 추가될 때 기본값으로 현재 날짜(SYSDATE)가 자동으로 입력되도록 하세요.
+   
+   ALTER TABLE new_emp2
+   ADD (birthday DATE DEFAULT SYSDATE);
+   
+   
+   
+   5. 위 4번 문제에서 생성한 new_emp2 테이블의 BIRTHDAY 컬럼 이름을 BIRTH로 변경하는 쿼리를 쓰세요.
+   
+   alter table new_emp2
+   rename column birthday to birth;
+   
+   
+   
+   6. 위 4번 문제에서 생성한 new_emp2 테이블의 no 컬럼의 길이를 number(7)로 변경하는 쿼리를 쓰세요.
+   
+   alter table new_emp2
+   modify(no number(7));
+   
+   
+   
+   
+   7. new_emp2 테이블의 컬럼 중에서 BIRTH컬럼을 삭제하는 쿼리를 쓰세요.
+   
+   
+   alter table new_emp2 drop column birth;
+   
+   
+   
+   8. new_emp2 테이블의 컬럼은 남겨 놓고 데이터만 지우는 쿼리를 쓰세요.
+   
+   
+   truncate table new_emp2;
+   
+   
+   9.new_emp2 테이블을 완전히 삭제하는 쿼리를 쓰세요.
+   
+   
+   
+   10.데이터 딕셔너리 종류와 특징
+   
+   Static Dictionary
+   
+   DYnamic Dictionary
