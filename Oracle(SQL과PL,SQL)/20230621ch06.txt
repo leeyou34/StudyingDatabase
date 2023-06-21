@@ -1,0 +1,63 @@
+6장 DML로 데이터를 관리하는 방법을 배웁니다.
+
+앞 장의 DDL은 데이터를 담는 통 자체를 만들고 관리하는 명령이다.
+
+1. INSERT(새로운 데이터 입력하기)
+
+INSERT 명령어는 테이블에 새로운 데이터를 입력할 때 사용하는 명령어이다.
+
+
+1.1 INSERT를 사용하여 1행씩 입력하기
+
+문법: INSERT INTO table[(column1, column2, .... )]
+      values (value 1, value 2, ...).
+
+사용 예1
+
+Dept2 테이블에 아래와 같은 내용으로 새로운 부서 정보를 입력하세요.
+
+부서번호: 9000
+부서명: temp_1
+상위부서: 1006
+지역: temp area
+
+
+
+예시:
+
+INSERT INTO dept2 (dcode, dname, pdept, area)
+values(9000, 'temp_1', 1006, 'Temp Area');
+
+
+사용 예2: 특정 컬럼에 값을 입력하기
+부서번호와 부서명, 상위부서 값만 아래의 값으로 입력하세요.
+부서번호: 9002
+부서명: temp_3
+상위부서: Business Departement(1006부서)
+
+INSERT INTO dept2(dcode, dname, pdept)
+VALUES(9002, 'temp_3', 1006);
+
+
+
+사용 예3: 날짜 데이터 입력하기
+
+앞에서 몇 차례 언급 된 부분이다. 윈도와 유닉스 계열은 날짜 형태가 다르므로 날짜 데이터를 입력할 때 형태를 잘 맞춰야 한다.
+아래의 예는 유닉스 계열의 오라클에서 윈도용 오라클에서 사용하는 날짜 형태로 입력하는 예지이다.
+아래 정보를 professor 테이블에 입력하세요.
+
+교수번호: 5001
+교수이름: James Bond
+ID: Love_me
+Position: a full professor
+Pay: 500
+입사일: 2014년 10월 23일
+
+
+
+예시:
+
+INSERT INTO professor (profno, name, id, position, pay, hiredate)
+VALUES (5001, 'James Bond', 'Love_me', 'a full professor', 500, '2014-10-24');
+
+
