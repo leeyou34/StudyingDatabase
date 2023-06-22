@@ -61,3 +61,97 @@ INSERT INTO professor (profno, name, id, position, pay, hiredate)
 VALUES (5001, 'James Bond', 'Love_me', 'a full professor', 500, '2014-10-24');
 
 
+
+
+사용 예4: Null 값 입력하기
+
+* 자동 Null 값 입력하기
+  데이터를 입력할 때 컬럼에 값을 입력하지 않으면 자동으로 Null 값이 들어간다.
+
+* 수동 Null 값 입력하기
+  입력할 데이터를 적는 부분에 Null을 적어주면 입력된다.
+
+
+
+사용 예5: 음수 값 입력하기
+
+Create table t_minus
+( no1 NUMBER,
+  no2 NUMBER(3),
+  no3 NUMBER(3,2));
+
+
+INSERT INTO t_minus VALUES( 1, 1, 1);
+
+INSERT INTO t_minus VALUES (1.1, 1.1, 1.1);
+
+INSERT INTO t_minus VALUES (-1.1, -1.1, -1.1);
+
+
+
+
+
+
+1.2 INSERT와 서브 쿼리를 사용하여 여러 행 입력하기
+
+이 실습을 하기 위해서 professor 테이블을 복사하여 professor3 테이블을 생성한다.
+
+create table professor3
+as
+      select * from professor
+      where 1 = 2;
+
+
+INSERT INTO professor3
+SELECT * FROM professor;
+
+
+
+
+위 문장으로 여러 행을 입력할 때 Professor3 테이블에 컬럼의 개수와 데이터 형이 동일해야 하며 아래 쿼리의 2행에
+where를 사용하여 원하는 조건을 줘도 되고 서브 쿼리를 사용해도 좋다.
+
+
+CREATE TABLE professor4
+AS
+      SELECT profno, name, pay
+      FROM  professor
+      WHERE 1 = 2;
+
+
+INSERT INTO professor4
+SELECT profno, name, pay
+FROM professor
+WHERE profno > 4000;
+
+
+
+
+
+1.3 INSERT ALL을 이용한 여러 테이블에 여러 행 입력하기
+
+prof_3, prof_4 테이블을 생성하세요.
+
+
+CREATE TABLE prof_3
+( profno number,
+  name   varchar2(25));
+
+
+CREATE TABLE prof_4
+( profno   NUMBER,
+  name     VARCHAR2(25));
+
+
+
+
+
+사용 예1: 다른 테이블의 데이터를 가져와서 입력하기
+professor 테이블에서 교수 번호가 1000번에서 1999번까지인 교수의 번호와 교수 이름은 prof
+
+
+
+
+
+
+
