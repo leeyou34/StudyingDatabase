@@ -147,8 +147,124 @@ CREATE TABLE prof_4
 
 
 사용 예1: 다른 테이블의 데이터를 가져와서 입력하기
-professor 테이블에서 교수 번호가 1000번에서 1999번까지인 교수의 번호와 교수 이름은 prof
+professor 테이블에서 교수 번호가 1000번에서 1999번까지인 교수의 번호와 교수 이름은 prof_3 테이블에 입력하고
+교수 번호가 2000번에서 2999번까지인 교수의 번호와 이름은 prof_4테이블에 입력하세요.
 
+예시
+
+INSERT ALL
+WHEN profno BETWEEN 1000 AND 1999 THEN 
+      INTO prof_3 VALUES(profno, name)
+WHEN profno BETWEEN 2000 AND 2999 THEN
+      INTO prof_4 VALUES(profno, name)
+SELECT profno, name
+FROM professor;
+
+
+
+select * from prof_3;
+
+select * from prof_4;
+
+
+
+
+사용 예2: 다른 테이블에 동시에 같은 데이터 입력하기
+prof_3, prof_4 테이블의 데이터를 TRUNCATE로 삭제한 후 PROFESSOR 테이블에서 교수 번호가 3000번에서 3999번인 교수들의 교수 번호화 이름을 prof_3 테이블과 prof_4 테이블에 동시에 입력하세요.
+
+예시
+
+TRUNCATE TABLE prof_3;
+
+TRUNCATE TABLE prof_4;
+
+INSERT ALL
+      INTO prof_3 VALUES (profno, name)
+      INTO prof_4 VALUES (profno, name)
+SELECT profno, name
+FROM professor
+WHERE profno BETWEEN 3000 AND 3999;
+
+
+
+
+
+
+2. UPDATE(데이터 변경하기)
+
+update 문장은 기존 데이터를 다른 데이터로 변경할 때 사용하는 방법입니다.
+
+문법:
+UPDATE table
+SET column = value
+WHERE 조건;
+
+
+
+사용 예1
+
+Professor 테이블에서 직급이 조교수(assistant professor)인 교수들의 BONUS를 200만원으로 인상하세요
+
+UPDATE professor
+SET bonus = 200
+WHERE position = 'assistant professor';
+
+
+
+사용 예2
+
+Professor 테이블에서 'Sharon Stone'교수의 직급과 동일한 직급을 가진 교수들 중 현재 급여가 250만 원이 안 되는 교수들의 급여를 15% 인상하세요.
+
+UPDATE professor
+SET pay = pay *1.15
+WHERE position = ( SELECT position
+                   FROM professor
+                   WHERE name = 'Sharon Stone')
+AND pay < 250;
+
+
+
+
+
+3. DELETE
+
+DELETE 문장은 데이터를 삭제하는 구문이다.
+
+문법:
+
+DELETE FROM table
+WHERE 조건;
+
+
+사용 예
+Dept2 테이블에서 부서 번호(DCODE)가 9000번에서 9999번 사이인 매장들을 삭제하세요.
+
+DELETE FROM dept2
+WHERE dcode >= 9000 AND dcode <= 9999;
+
+-> DELETE 문은 데이터를 삭제한다고 알고 있지만 사실 데이터는 삭제되지 않고 해당 블록에 그대로 남아 있으며 특별한 툴(BBED 등)을 이용하면 DELETE된 데이터도 전부 복구할 수 있다. 그래서 delete 된 데이터를 전부 복구 가능하다.
+
+
+
+
+4. MERGE
+
+Merget란 여러 테이블의 데이터를 합치는 병합을 의미한다.
+이 명령어는 문법이 다소 복잡하다.
+
+문법:
+
+MERGE INTO Table1
+Using Table2
+On(병합 조건 절)
+WHEN MATCHED THEN
+UPDATE SET 업데이트 내용
+DELETE WHERE 조건
+WHEN NOT MATCHED THEN
+INSERT VALUES(컬럼 이름);
+
+위 문법은 Table1과 Table2의 내용을 합쳐서 Table1에 모으는 것이다.
+이 때 기준은 병합 조건 절이 조건이 된다.
 
 
 
