@@ -268,6 +268,161 @@ INSERT VALUES(컬럼 이름);
 
 
 
+사용 예: Merge
+
+charge01, charge02 테이블 둘을 ch_total 테이블로 합병하라.
+
+
+CREATE TABLE charge_01
+( u_date VARCHAR2(6),
+  cust_no NUMBER,
+  u_time NUMBER,
+  charge NUMBER );
+
+
+CREATE TABLE charge_02
+( u_date VARCHAR2(6),
+  cust_no NUMBER,
+  u_time NUMBER,
+  charge NUMBER );
 
 
 
+
+테이블 생서 후 charge_01, charge_02 테이블에 아래와 같이 데이터를 입력합시다.
+
+INSERT INTO charge_01 VALUES
+( '141001', 1000, 2, 1000);
+
+INSERT INTO charge_01 VALUES
+( '141001', 1001, 2, 1000);
+
+INSERT INTO charge_01 VALUES
+( '141001', 1002, 1, 500);
+
+
+
+
+INSERT INTO charge_02 VALUES
+( '141002', 1000, 3, 1500);
+
+
+INSERT INTO charge_02 VALUES
+( '141002', 1001, 4, 2000);
+
+
+INSERT INTO charge_02 VALUES
+( '141002', 1003, 1, 500);
+
+
+
+commit;
+
+
+
+
+
+데이터를 모을 집계용 테이블 생성
+
+CREATE TABLE ch_total
+( u_date VARCHAR2(6),
+  cust_no NUMBER,
+  u_time NUMBER,
+  charge NUMBER );
+
+
+
+
+
+MERGE 작업 QUERY 1(charge_01 테이블과 ch_total 테이블 병합)
+
+MERGE INTO ch_total total
+USING charge_01 ch01
+ON(total.u_date = ch01.u_date)
+WHEN MATCHED THEN
+UPDATE SET total.cust_no = ch01.cust_no
+WHEN NOT MATCHED THEN
+INSERT VALUES(ch01.u_date, ch01.cust_no, ch01.u_time, ch01.charge);
+
+
+
+MERGE 작업 QUERY 2(charge_02 테이블과 ch_total 테이블 병합)
+
+
+MERGE INTO ch_total total
+USING charge_02 ch02
+ON(total.u_date = ch02.u_date)
+WHEN MATCHED THEN
+      UPDATE SET total.cust_no = ch02.cust_no
+WHEN NOT MATCHED THEN
+INSERT VALUES(ch02.u_date, ch02.cust_no, ch02.u_time, ch02.charge);
+
+
+
+Merge 작업 Query 1, 2를 수행 후, mergy query1을 또 작업할 경우 에러가 발생한다.
+그 이유는 total 테이블의 u_date 컬럼에 중복되는 값이 여러 개 있어서이다.
+
+
+
+
+5. UPDATE 조인
+
+다른 테이블과 조인을 하는 UPDATE에 대해서 살펴 보겠습니다.
+
+일반적인 UPDATE: 단일 테이블
+
+예시: 직업이 "clerk"인 사원의 급여를 10% 인상하라.
+
+UPDATE EMP
+SET SAL = (SAL + SAL*0.1)
+WHERE JOB = 'CLERK';
+
+
+
+
+일반적인 UPDATE 조인: WHERE 절에서 다른 테이블과 조인
+부서가 DALLAS에 위치하는 부서에서 근무하는 사원의 급여를 10% 인상한다.
+
+UPDATE EMP E
+SET SAL = (SAL + SAL*0.1)
+WHERE EXISTS
+      (
+            SELECT 1 FROM Dept D
+            WHERE D.LOC='DALLAS' AND
+                  E.DEPTNO = D.DEPTNO
+      )
+;
+
+---> 위 쿼리는 department에 LOC이 없어서 작동 안된다.
+
+
+
+
+
+테스트를 위한 테이블 생성
+
+
+CREATE TABLE DEPT_HIST --부서발령 이력
+(
+      EMPNO        NUMBER(4), -- 사원번호 PK1
+      APPOINTSEQNO NUMBER(4), -- 발령순번 PK2
+      DEPTNO       NUMBER(2), -- 부서번호
+      APPOINTDD    DATE       -- 발령일자
+);
+
+
+
+ALTER TABLE DEPT_HIST
+ADD CONSTRAINT PK_DEPT_HIST PRIMARY KEY (EMPNO, APPOINTSEQNO);
+
+
+
+테스트 데이터로 부서 번호가 20인사원 발령 부서 번호 99로 데이터를 INSERT
+
+
+INSERT INTO DEPT_HIST
+SELECT EMPNO, 1 APPOINTSEQNO, 99 DEPTNO, SYSDATE APPOINTDD
+FROM EMP
+WHERE DEPTNO=20;
+
+COMMIT;
