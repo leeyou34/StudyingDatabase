@@ -426,3 +426,98 @@ FROM EMP
 WHERE DEPTNO=20;
 
 COMMIT;
+
+
+
+
+EMP 테이블에 존재하지 않는 사원번호 2건을 INSERT
+
+INSERT INTO DEPT_HIST VALUES (9322, 1, 99, SYSDATE);
+INSERT INTO DEPT_HIST VALUES (9414, 1, 99, SYSDATE);
+
+COMMIT;
+
+EMP 테이블에 사원번호 9322, 9414 가 없다.
+
+99는 존재하지 않는 부서이다.
+
+
+그래서 EMP TABLE에 현재 소속 부서 번호로 UPDATE한다.
+먼저 UPDATE 대상과 값들을 먼저 조회한다.
+
+
+
+SELECT e.empno, e.deptno tobe_deptno, d.deptno asis_deptno
+FROM emp e, dept_hist d
+WHERE e.empno = d.empno;
+
+
+
+사원 테이블에 존재하는 사원 중 현재 소속된 부서 번호 UPDATE
+
+
+UPDATE DEPT_HIST d
+SET d.deptno = (
+                  select e.deptno FROM EMP e
+                  WHERE e.empno = d.empno
+               )
+;
+COMMIT;
+
+
+위의 쿼리를 입력시 emp 테이블에 존재하지 않는 사원번호 9322, 9414번의 부서 번호가 NULL로 UPDATE 되었다.
+원치 않는 데이터까지 update되었으니
+먼저 EMP 테이블에 존재하는 사원으로 UDPATE 대상 범위를 정하고 UPDATE를 한다
+
+
+
+UPDATE dept_hist d
+SET d.deptno = (
+                  SELECT e.deptno FROM emp e
+                  WHERE e.empno = d.empno
+                )
+WHERE
+EXISTS
+      (
+            SELECT 1 FROM emp e
+            WHERE e.empno = d.empno
+      )
+;
+
+
+update 절에 set절이 들어가면
+set 절에 사용한 조인 테이블 emp를 where 절에 다시 사용하기 때문이다.
+즉, EMP 테이블을 두 번 읽어야 하는 구조이다.
+
+
+oracle에서는 비교 테이블을 한 번만 읽는 방법으로 UPDATE JOIN VIEW와 MERGE문을 제공한다.
+
+
+MERGE INTO DEPT_HIST d
+USING EMP e
+ON
+      (
+            e.empno = d.empno
+      )
+WHEN MATCHED THEN
+      UPDATE SET d.deptno = e.deptno
+;
+
+COMMIT;
+
+
+
+
+
+
+
+
+6. TRANSACTION 관리하기
+
+   Transaction 이란 논리적인 작업 단위를 의미한다.
+
+   트랜잭션 내의 작업의 결과를 확정하는 명령어로 COMMIT이 있다.
+   트랜잭션 내의 모든 명령어들을 취소하는 ROLLBACK 명령어가 있다.
+
+   
+
