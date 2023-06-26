@@ -520,4 +520,199 @@ COMMIT;
    트랜잭션 내의 모든 명령어들을 취소하는 ROLLBACK 명령어가 있다.
 
    
+   트랜잭션에서 핵심은 "DML 작업을 한 후에는 반드시 COMMIT이나 ROLLBACK 명령을 수행해야지 작어빙 마무리가 된다."
+
+
+
+STEP-UP 1 : DELTE로 삭제 후 테이블 용량 확인하기
+
+
+TEST1 테이블의 데이터 삭제 후 용량 확인하기
+STEP1: 테스트용 테이블을 생성하고 대량의 데이터를 입력한다.
+
+CONN /AS SYSDBA
+ALTER DATABASE DATAFILE '/app/oracle/oradata/testdb/undotbs01.dbf' autoextend on;
+CREATE TABLE scott.reorg (no NUMBER, name VARCHAR2(20), addr VARCHAR2(20));
+
+BEGIN
+      FOR i IN 1..500000 LOOP
+            INSERT ITO scott.reorg
+            VALUES( i, DBMS_RANDOM.STRING('B', 19),
+                    DBMS_RANDOM.STRING('H', 19) );
+      END LOOP;
+      COMMIT;
+END;
+/
+
+
+SELECT COUNT(*) FROM SCOTT.TEST01;
+
+
+
+
+
+STEP2 테이블의 크기를 측정한다.
+
+ANALYZE TABLE scott.reorg COMPUTE STATISTICS;
+
+SELECT SUM(BYTES)/1024/1024 MB
+      FROM dba_segments
+      WHERE owner='SCOTT'
+      AND segment_name='REORG';
+
+
+SELECT table_name, num_rows, blocks, empty_blocks
+FROM dba_tables
+WHERE owner='SCOTT'
+AND table_name='REORG';
+
+-> 위의 결괏 값은 NUM_ROWS는 데이터 건수이고 BLOCKS는 사용 ㅈㅇ인 BLOCKㅡ이 개수이며 EMPTY_BLOCKS는 빈 블록 개수이다.
+
+
+SELECT COUNT(DISTINCT DBMS_ROWID.ROWID_BLOCK_NUMBER(rowid) ||
+             DBMS_ROWID.ROWID_RELATIVE_FNO(rowid)) "REAL USED"
+FROM scott.reorg;
+
+
+
+
+STEP3 데이터 삭제 후 테이블 크기를 확인합니다.
+
+DELETE FROM scott.reorg;
+
+COMMIT;
+
+SELECT COUNT(*) FROM scott.reorg;
+
+SELECT COUNT(DISTINCT DBMS_ROWID.ROWID_BLOCK_NUMBER(rowid) ||
+             DBMS_ROWID.ROWID_RELATIVE_FNO(rowid)) "REAL USED"
+FROM scott.reorg;
+
+
+
+
+
+
+STEP-UP2: DELETE 후 TABLE REORG(재구성)하기
+
+STEP 1: 위에서 생성했던 scott 계정 소유의 reorg 테이블에 데이터를 추가합니다.
+
+CONN / AS SYSDBA;
+
+BEGIN
+      FOR i IN 1.. 1000 LOOP
+            INSERT INTO scott.reorg
+            VALUES (i, DBMS_RANDOM.STRING('B',19)
+                     , DBMS_RANDOM.STRING('H',19) );
+      END LOOP;
+      COMMIT;
+END;
+/
+
+
+
+
+STEP 2: 데이터 건수와 테이블 용량을 측정한다.
+
+SELECT COUT(*) FROM scott.reorg;
+
+SELECT SUM(BYTES)/1024/1205 MB
+FROM ba_Segments
+WHERE owner='SCOTT'
+AND segment_name='REORG'
+
+
+
+
+STEP 3: 1000건의 데이터 중 300건만 삭제한다.
+
+DELETE FROM scott.reorg
+WHERE no BETWEEN 1 AND 300;
+
+COMMIT;
+
+SELECT COUNT(*) FROM scott.reorg;
+
+SELECT SUM*BYTES)/1024/1025 MB
+FROM dba_segments
+WHERE owner='SCOTT'
+AND segment_name='REORG';
+
+
+
+STEP 4: 테이블 REORG(리오그-재구성) 작업을 한다.
+
+이 작업은 여러 가지 방법이 있지만 여기서는 9i 부터 가장 많이 사용되는 방법인 테이블 스페이스를 이동시키는 방법을 사용하겠다.
+
+SELECT table_name, tablespace_name
+FROM dba_tables
+WHERE table_name='REORG';
+
+ALTER TABLE scott.reorg MOVE TABLESPACE users;
+
+위 문장은 테이블을 다른 장소로 옮기는 명령어지만 현재 테이블 스페이스 이름만 적어주면 용량이 줄어든다.
+
+
+SELECT SUM(BYTES)/1024/1024 MB
+FROM dba_segments
+WHERE owner='SCOTT'
+AND segment_name='REORG';
+
+SELECT COUNT(*) FROM scott.reorg;
+
+
+DELETE를 수행해도 테이블 용량은 줄어들지 않는다! 데이터 삭제 후 테이블 크기를 줄이고 싶으면 수동으로 reorg(재구성) 작업까지 해 주어야 한다.
+
+
+
+
+연습문제
+1. Dept2 테이블에 아래와 같은 내용으로 새로운 부서 정보를 입력하세요.
+      * 부서 번호:9010
+      * 부서명: temp_10
+      * 상위 부서: 1006
+      * 지역: temp area
+
+
+
+-> 
+INSERT INTO DEPT2 (DCODE, DNAME, PDEPT, AREA) VALUES ( 9010, 'temp_10', 1006, 'temp area'); 
+
+
+
+2. Dept2 테이블에 아래와 같은 내용으로 특정 컬럼에만 정보를 입력하세요.
+      * 부서 번호: 9020
+      * 부서 명: temp_20
+      * 상위 부서: Busiess Department(1006번 부서)
+
+
+->
+INSERT INTO DEPT2 (DCODE, DNAME, PDEPT) VALUES ( 9020, 'temp_20', (
+SELECT DCODE FROM DEPT2 WHERE DNAME ='Business Department'));
+
+
+
+3. professor 테이블에서 profno가 3000번 이하의 교수들의 profno, name, pay를 가져와서 professor4 테이블에 한꺼번에 입력하는 쿼리를 쓰세요(ITAS 방법을 사용하세요.)
+
+
+->
+INSERT INTO professor4 (profno, name, pay)
+SELECT profno, name, pay
+FROM professor
+WHERE profno <= 3000;
+
+
+
+
+4. Professor 테이블에서 'Sharon Stone'교수의 BONUS를 100만원으로 인상하세요.
+
+
+UPDATE Professor
+SET BONUS = BONUS + 1000000
+WHERE name = 'Sharon Stone';
+
+
+
+
+
 
