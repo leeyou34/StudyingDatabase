@@ -1,0 +1,76 @@
+7장 Constraint(제약조건)을 배웁니다.
+
+COnstraint이란 테이블에 올바른 데이터만 입력받고 잘못된 데이터는 들어오지 못하도록 컬럼마다 정하는 규칙이다.
+
+1. 제약 조건의 종류
+
+  조건 이름      의미
+  NOT NULL      이 조건이 설정된 컬럼에는 NULL 값이 입력되지 못하도록 한다.
+  UNIQUE        이 조건이 설정된 컬럼에는 중복된 값이 입력되지 못하도록 한다.
+  PRIMARY KEY   이 조건은 NOT NULL + UNIQUE의 특징을 가지며 테이블 내에서 데이터드리끼리 유일성을 보장하는 컬럼에 설정한다. 테이블 당 1개만 설정 가능하다.
+  FOREIGN KEY   이 조건은 다른 테이블의 컬럼을 참조해서 검사를 한다.
+  CHECK         이 조건에서 설정된 값만 입력을 허용하고 나무지는 거부된다.
+
+
+2. 제약 조건 사용하기
+
+
+2.1 테이블 생성 시에 지정하기
+
+    아래의 테이블을 생성하며 제약 조건을 지정하는 방법을 살펴본다.
+
+    CREATE TABLE new_emp1
+    ( no  NUMBER(4)
+          CONSTRAINT emp1_no_pk PRIMARY KEY,
+      name VARCHAR2(20)
+          CONSTRAINT emp1_name_nn NOT NULL,
+      jumin VARCHAR2(13)
+          CONSTRAINT emp1_jumin_nn NOT NULL
+          CONSTRAINT emp1_jumin_uk UNIQUE,
+      loc_code NUMBER(1)
+          CONSTRAINT emp1_area_ck CHECK (loc_code < 5),
+      deptno VARCHAR2(6)
+          CONSTRAINT emp1_deptno_fk REFERENCES dept2(dcode)
+      );
+
+
+
+    CREATE TABLE new_emp2
+    (  no  NUMBER(4)  PRIMARY KEY,
+      name VARCHAR2(20) NOT NULL,
+      jumin VARCHAR2(13) NOT NULL UNIQUE,
+      loc_code NUMBER(1) CHECK (loc_code < 5),
+      deptno VARCHAR2(6) REFERENCES dept2(dcode)
+    );
+
+
+2.2 테이블 생성 후 추가하기
+
+    사용 예1: new_emp2 테이블의 name 컬럼에 UNIQUE 제약 조건을 추가하세요.
+
+    ALTER TABLE new_emp2
+    ADD CONSTRAINT emp2_name_uk UNIQUE(name);
+
+
+
+    
+    사용 예2: new_emp2 테이블의 loc_code 컬럼에 NOT NULL 제약 조건을 추가하세요. (NULL과 NOT NULL을 변경하는 경우에는 조금 다르다.)
+
+    ALTER TABLE new_emp2
+    ADD CONSTRAINT emp2_loccode_nn NOT NULL(loc_code);
+    ADD CONSTRAINT emp2_loccode_nn NOT NULL(loc_code);
+
+    ALTER TABLE new_emp2
+    MODIFY (loc_code constraint emp2_loccode_nn NOT NULL);
+
+
+
+
+    사용 예3: new_emp2 테이블의 no 컬럼이 emp2 테이블의 empno 컬럼의 값을 참조하도록 참조키 제약조건을 설정하세요(new_emp2 테이블이 자식 테이블입니다).
+
+
+    ALTER TABLE new_emp2
+    ADD CONSTRAINT emp2_no_fk FOREIGN KEY(no)
+    REFERENCES emp2(empno);
+
+    
